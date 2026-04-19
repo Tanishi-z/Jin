@@ -1,0 +1,426 @@
+# Jin
+
+**自然言語の要求を、複数の役割が協調して仕様・体験・実装計画へ変換する対話型スペック駆動開発CLI**
+
+```
+     ██╗██╗███╗   ██╗
+     ██║██║████╗  ██║
+     ██║██║██╔██╗ ██║
+██   ██║██║██║╚██╗██║
+╚█████╔╝██║██║ ╚████║
+ ╚════╝ ╚═╝╚═╝  ╚═══╝
+
+あなたの次の一手を、布陣で支える
+```
+
+---
+
+## 概要
+
+Jin は、雑な自然言語の要求を受け取り、将棋の駒になぞらえた複数の専門エージェントが協調して**仕様・体験・実装計画**へ変換する対話型CLIです。
+
+**完全ローカルLLM専用** — Ollama で動作する任意のオープンソースモデルを使用します。APIキー不要、クラウド送信なし。
+
+---
+
+## 特徴
+
+- **将棋モチーフの布陣システム** — 金・銀・飛車・角・桂馬・香車・歩の各駒が専門領域を担い、連携して要求を分解します
+- **金による動的オーケストレーション** — 要求の内容に応じて金（Kin）が必要な駒の布陣を動的に決定します
+- **レビューループ** — 金が各駒の出力をレビューし、不十分な場合は差し戻し・追加駒の召喚を行います
+- **成り駒による実装フェーズ** — 分析を終えた駒は「成り」、実際のコード・ドキュメントを生成します
+- **カスタムエージェント（.agent.md）** — 駒の挙動をプロジェクトごとにカスタマイズできます
+- **スキル（.skill.md）** — `/trigger` で呼び出せる再利用可能なプロンプトテンプレートです
+- **フック（hooks.json）** — 布陣・実装・適用の各タイミングでシェルコマンドを自動実行できます
+- **駒ごとのモデル割り当て** — 駒の役割に応じて異なるOllamaモデルを使い分けられます
+
+---
+
+## 駒と役割
+
+| 駒 | 分析フェーズ | 実装フェーズ（成り） |
+|---|---|---|
+| **金（Kin）** | 要求整理・布陣決定・全体統合 | — |
+| **銀（Gin）** | UI/UX・ユーザー体験設計 | 成銀：フロントエンド実装 |
+| **飛車（Hisha）** | 技術実装・アーキテクチャ計画 | 龍王：バックエンド実装 |
+| **角（Kaku）** | 品質・リスク・テスト設計 | 龍馬：テストコード実装 |
+| **桂馬（Keima）** | データモデル・API設計・メトリクス | 成桂：スキーマ・マイグレーション実装 |
+| **香車（Kyosha）** | セキュリティ・認可・権限設計 | 成香：認証ミドルウェア実装 |
+| **歩（Fu）** | ドキュメント・タスク整理 | と金：ドキュメント生成 |
+
+---
+
+## インストール
+
+```bash
+# リポジトリをクローン
+git clone https://github.com/your-org/jin.git
+cd jin
+
+# 依存パッケージをインストール
+npm install
+
+# ビルド
+npm run build
+
+# グローバルインストール（任意）
+npm install -g .
+```
+
+**動作要件**
+
+- Node.js >= 24.0.0
+- [Ollama](https://ollama.com) がインストールされていること
+
+---
+
+## クイックスタート
+
+### 1. Ollama をインストール
+
+```bash
+# macOS
+brew install ollama
+
+# Linux
+curl -fsSL https://ollama.com/install.sh | sh
+```
+
+### 2. Jin を起動
+
+```bash
+jin
+```
+
+初回起動時は言語モードの選択後、自動的にOllamaのセットアップ画面へ進みます。インストール済みモデルの一覧と推奨モデルが表示され、そのままダウンロードも可能です。設定は `~/.jin/config.json` に保存され、2回目以降はスキップされます。
+
+### デモモード
+
+Ollamaの設定なしでUIの動作を確認できます。
+
+```bash
+jin --demo
+```
+
+---
+
+## 操作フロー
+
+```
+起動
+ └─ 言語モード選択（日本語 / Global）
+      └─ ローカルLLM セットアップ（初回のみ）
+           └─ ホームメニュー
+                ├─ 新しいプロジェクトを始める  → 金との要件定義対話 → 布陣 → 提案
+                ├─ 新しい機能を追加する        → 要求入力 → 布陣 → 提案
+                ├─ 既存機能を改善する          → 要求入力 → 布陣 → 提案
+                ├─ 手順を実装する              → タスク選択 → 成り駒が実装
+                ├─ エージェントを管理する      → .agent.md の有効化・切り替え
+                └─ Jin の設定を変更する        → モデル設定
+```
+
+---
+
+## ローカルLLMの設定
+
+### 推奨モデル
+
+Jin はマシンスペック（RAM・GPU）を自動検出し、最適なモデルを提案します。
+
+| 用途 | 推奨モデル | 必要RAM |
+|---|---|---|
+| 軽量・高速 | `qwen2.5:7b`, `phi4:14b` | 8GB |
+| バランス型 | `llama3.1:8b`, `gemma3:12b` | 16GB |
+| 高品質 | `qwen2.5:32b`, `llama3.3:70b` | 32GB以上 |
+| コード特化 | `qwen2.5-coder:14b`, `deepseek-coder-v2:16b` | 16GB |
+
+### 駒ごとのモデル割り当て
+
+飛車（コード生成）と角（品質分析）には用途に特化したモデルを割り当てることで精度が向上します。
+
+```bash
+jin
+# →「Jin の設定を変更する」を選択
+# →「駒ごとのモデルを設定する」
+```
+
+---
+
+## カスタムエージェント（.agent.md）
+
+プロジェクトの `.jin/agents/` ディレクトリに `.agent.md` ファイルを置くことで、各駒のシステムプロンプトと使用モデルをカスタマイズできます。
+
+### サンプルを生成する
+
+```bash
+jin agent init
+```
+
+`.jin/agents/` に全7駒分のサンプルファイルが生成されます。
+
+### ファイル形式
+
+```markdown
+---
+id: security-reviewer       # ユニークなID
+name: セキュリティ審査官      # 表示名
+phase: analysis             # analysis | impl | review | summary
+roleId: kaku                # 対応する駒ID（この駒の代わりに動く）
+model: qwen3:8b             # 使用モデル（省略時はグローバル設定）
+temperature: 0.2            # 推論温度 0〜1（省略時は 0.3）
+enabled: true               # false で無効化
+---
+
+あなたはセキュリティ審査官です。
+OWASP Top 10 の観点から脅威を分析し、
+認証・認可・入力検証・ログの4点を必ず確認してください。
+```
+
+### 配置ディレクトリ
+
+| ディレクトリ | 優先度 | 用途 |
+|---|---|---|
+| `.jin/agents/` | **高**（プロジェクト優先） | プロジェクト専用のカスタム駒 |
+| `~/.jin/agents/` | 低（グローバル） | 全プロジェクト共通のカスタム駒 |
+
+### エージェントを有効化する
+
+```bash
+jin
+# →「エージェントを管理する」を選択
+# → 対象エージェントを選んで「有効化する」
+```
+
+有効化した情報は `~/.jin/config.json` の `activeAgents` フィールドに保存されます。
+
+---
+
+## スキル（.skill.md）
+
+スキルは `/trigger` で呼び出せる**再利用可能なプロンプトテンプレート**です。セキュリティ監査・API設計レビューなど、繰り返し使う分析パターンをスキルとして定義しておくことで、毎回プロンプトを書く手間を省けます。
+
+### サンプルを生成する
+
+```bash
+jin skill init
+```
+
+`.jin/skills/` にサンプルスキル5種が生成されます。
+
+### ファイル形式
+
+```markdown
+---
+trigger: security-audit     # /security-audit で呼び出すトリガー名
+name: セキュリティ監査        # 表示名
+description: OWASP Top 10 観点でリスクを分析します
+enabled: true
+---
+
+以下の機能についてセキュリティ監査を行ってください。
+
+## 対象
+{{input}}
+
+## 監査観点
+- OWASP Top 10 の各リスク
+- 認証・認可の抜け穴
+...
+```
+
+`{{input}}` にはスキル呼び出し時に入力したテキストが展開されます。
+
+### 呼び出し方
+
+要求入力画面で `/trigger-name 対象の説明` と入力します。
+
+```
+> /security-audit 認証フロー全体
+> /api-design ユーザー管理 REST API
+> /refactor src/screens/inReview.ts
+```
+
+テンプレートが展開されてそのまま布陣に入力されます。
+
+### デフォルトで使えるスキル
+
+| トリガー | 内容 |
+|---|---|
+| `/security-audit` | OWASP Top 10 観点のセキュリティ監査 |
+| `/api-design` | RESTful・一貫性・拡張性の API設計レビュー |
+| `/refactor` | 技術的負債・可読性・SOLID原則のリファクタリング計画 |
+| `/onboarding` | 新メンバー向けオンボーディング資料の作成 |
+| `/test-plan` | ユニット・統合・E2E テスト計画の設計 |
+
+### 配置ディレクトリ
+
+| ディレクトリ | 優先度 | 用途 |
+|---|---|---|
+| `.jin/skills/` | **高**（プロジェクト優先） | プロジェクト専用のスキル |
+| `~/.jin/skills/` | 低（グローバル） | 全プロジェクト共通のスキル |
+
+---
+
+## フック（hooks.json）
+
+フックは布陣・実装・適用の各タイミングで**シェルコマンドを自動実行**する仕組みです。git操作、通知、lint、テストなどをJinのワークフローに組み込めます。
+
+### サンプルを生成する
+
+```bash
+jin hook init
+```
+
+`.jin/hooks.json` にテンプレートが生成されます。
+
+### ファイル形式（.jin/hooks.json）
+
+```json
+{
+  "hooks": {
+    "pre-analysis": [
+      "git diff --stat HEAD"
+    ],
+    "post-apply": [
+      "git add .jin/ && git commit -m 'jin: 仕様更新'"
+    ]
+  }
+}
+```
+
+### フックイベント一覧
+
+| イベント | タイミング | 補足 |
+|---|---|---|
+| `pre-analysis` | 布陣開始前 | stdout がリクエストに付加される |
+| `post-analysis` | 布陣完了後 | — |
+| `pre-impl` | 実装フェーズ開始前 | — |
+| `post-impl` | 実装フェーズ完了後 | — |
+| `pre-apply` | ファイル書き出し前 | — |
+| `post-apply` | ファイル書き出し後 | — |
+
+### フックに渡される環境変数
+
+| 変数名 | 内容 |
+|---|---|
+| `JIN_REQUEST_TYPE` | 構想の種別（`new_feature` など） |
+| `JIN_REQUEST_TEXT` | 要求テキスト |
+| `JIN_ACTIVE_ROLES` | 使用された駒IDのカンマ区切りリスト |
+| `JIN_IMPL_ROLES` | 実装フェーズに参加した駒IDのリスト |
+| `JIN_SPEC_PATH` | 書き出された仕様ファイルのパス |
+| `JIN_TASK_PATH` | backlog.md のパス |
+| `JIN_DECISION_PATH` | 決定事項ファイルのパス |
+
+### 配置ディレクトリ
+
+| ファイル | 優先度 | 用途 |
+|---|---|---|
+| `.jin/hooks.json` | **高**（プロジェクト優先） | プロジェクト専用のフック |
+| `~/.jin/hooks.json` | 低（グローバル） | 全プロジェクト共通のフック |
+
+---
+
+## 設定ファイル
+
+`~/.jin/config.json` にグローバル設定が保存されます。
+
+```json
+{
+  "mode": "ja",
+  "localModel": "qwen2.5:7b",
+  "roleModels": {
+    "hisha": "qwen2.5-coder:14b",
+    "kaku":  "qwen3:8b"
+  },
+  "activeAgents": {
+    "kaku": "security-reviewer"
+  }
+}
+```
+
+| フィールド | 説明 |
+|---|---|
+| `mode` | 表示言語（`"ja"` / `"global"`） |
+| `localModel` | Ollama のデフォルトモデル名 |
+| `roleModels` | 駒ごとのモデル割り当て |
+| `activeAgents` | 駒ごとに有効化するカスタムエージェントID |
+
+---
+
+## CLIリファレンス
+
+```bash
+jin                  # 通常起動
+jin --demo           # デモモード
+jin agent init       # カスタムエージェントのサンプルを生成
+jin skill init       # スキルのサンプルを生成
+jin hook init        # hooks.json テンプレートを生成
+```
+
+---
+
+## プロジェクト構成
+
+```
+.jin/
+  agents/          # カスタムエージェント定義（.agent.md）
+  skills/          # スキル定義（.skill.md）
+  hooks.json       # フック設定
+  specs/           # 生成された仕様ファイル
+  tasks/
+    backlog.md     # タスク一覧
+  decisions/       # 決定事項ログ
+  activity.json    # 使用ログ（ダッシュボード用）
+  context.md       # プロジェクトコンテキスト（自動更新）
+```
+
+```
+src/
+  agents/
+    ollamaRunner.ts  # Ollama API 呼び出し
+    runner.ts        # 駒の実行オーケストレーター
+    loader.ts        # .agent.md パーサー
+    registry.ts      # エージェントレジストリ
+    templates.ts     # jin agent init 用テンプレート
+    techniques.ts    # CoT / Few-Shot / ReAct / 自己一貫性
+  skills/
+    loader.ts        # .skill.md パーサー
+    registry.ts      # スキルレジストリ・/trigger 解析
+    templates.ts     # jin skill init 用テンプレート
+  hooks/
+    runner.ts        # フック実行器
+    templates.ts     # jin hook init 用テンプレート
+  roles/
+    prompts.ts       # 各駒のシステムプロンプト定義
+    modelRecommendations.ts  # 駒ごとの推奨モデル
+  screens/           # 各画面の実装
+  system/
+    ollama.ts        # Ollama セットアップ
+    ollamaRegistry.ts # Ollama ライブラリからモデル取得
+    specs.ts         # マシンスペック検出
+  activity/
+    writer.ts        # activity.json 書き込み
+    fileWriter.ts    # 仕様・タスク・決定事項ファイル生成
+  dashboard/
+    server.ts        # ダッシュボード Web サーバー
+    data.ts          # ダッシュボードデータ集計
+  types/index.ts     # 型定義
+  config.ts          # 設定の読み書き
+  cli.ts             # CLIエントリーポイント
+```
+
+---
+
+## 開発
+
+```bash
+npm run dev          # 開発モードで起動
+npm run build        # ビルド
+npm run dev -- --demo  # デモモードで起動
+```
+
+---
+
+## ライセンス
+
+MIT

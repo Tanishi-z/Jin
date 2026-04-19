@@ -1,0 +1,30 @@
+{
+  "name": "jin",
+  "version": "0.1.0",
+  "description": "自然言語の要求を、複数の役割が協調して仕様・体験・実装計画へ変換する対話型スペック駆動開発CLI",
+  "type": "module",
+  "bin": {
+    "jin": "./dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "tsx src/index.ts",
+    "build": "tsc && chmod +x dist/index.js",
+    "prepare": "npm run build",
+    "start": "node dist/index.js"
+  },
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "dependencies": {
+    "@clack/prompts": "^0.9.1",
+    "chalk": "^5.4.1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.8.3"
+  }
+}

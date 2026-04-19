@@ -1,0 +1,30 @@
+# dependencies
+node_modules/
+
+# build outputs
+dist/
+coverage/
+*.tsbuildinfo
+
+# environment files
+.env
+.env.*
+!.env.example
+!.env.sample
+
+# logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# local tool settings
+.claude/
+docs/internal/
+CLAUDE.md
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
