@@ -54,8 +54,8 @@ Jin は、雑な自然言語の要求を受け取り、将棋の駒になぞら�
 
 ```bash
 # リポジトリをクローン
-git clone https://github.com/your-org/jin.git
-cd jin
+git clone https://github.com/Tanishi-Zukka/Jin.git
+cd Jin
 
 # 依存パッケージをインストール
 npm install
