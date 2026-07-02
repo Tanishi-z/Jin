@@ -1,6 +1,9 @@
 import chalk from 'chalk';
 import type { RoleId, RoleOutput } from '../types/index.js';
+import { PROMOTION_MAP } from '../types/index.js';
 import type { KinReviewResult } from '../agents/runner.js';
+import { drainCalls } from '../agents/callTrace.js';
+import type { LlmCallRecord } from '../agents/callTrace.js';
 import { addEvent } from '../activity/interactionWriter.js';
 import { broadcast } from '../dashboard/eventBus.js';
 
@@ -90,12 +93,35 @@ function emit(partial: Parameters<typeof addEvent>[0]): void {
   if (event) broadcast(event);
 }
 
+/**
+ * トレースバッファからLLM呼び出し記録を回収し、イベント添付用の
+ * フィールド（llmCalls / model / durationMs）にまとめる。
+ * 呼び出しが無い（デモ・モック）場合は空オブジェクトを返す。
+ */
+function collectTrace(): { llmCalls?: LlmCallRecord[]; model?: string; durationMs?: number } {
+  const calls = drainCalls();
+  if (calls.length === 0) return {};
+  return {
+    llmCalls:   calls,
+    model:      calls[calls.length - 1].model,
+    durationMs: calls.reduce((sum, c) => sum + c.durationMs, 0),
+  };
+}
+
+/** TUIにモデル名と所要時間の行を表示する（呼び出しが無い場合は何もしない） */
+function rowTrace(trace: ReturnType<typeof collectTrace>): void {
+  if (!trace.model) return;
+  const secs = ((trace.durationMs ?? 0) / 1000).toFixed(1);
+  row(chalk.dim(`⚙ ${trace.model} · ${secs}s`));
+}
+
 // ── 公開 API ──────────────────────────────────────────────────────────────────
 
 export function logAnalysis(roleId: RoleId, requestText: string, output: RoleOutput, isJa: boolean): void {
   const label = isJa ? ROLE_LABEL[roleId].ja : ROLE_LABEL[roleId].en;
   const voice = isJa ? ANALYSIS_VOICE[roleId].ja : ANALYSIS_VOICE[roleId].en;
   const phase = isJa ? '分析' : 'analysis';
+  const trace = collectTrace();
 
   // ターミナル表示
   console.log('');
@@ -109,16 +135,21 @@ export function logAnalysis(roleId: RoleId, requestText: string, output: RoleOut
   for (const sec of output.sections) {
     row(chalk.yellow(`[${sec.label}]`) + '  ' + chalk.white(ex(sec.body, WIDTH - sec.label.length - 6)));
   }
+  rowTrace(trace);
   foot();
 
-  // ログ書き込み + SSE
-  emit({ type: 'analysis', roleId, roleLabel: label, voice, phase, requestText, sections: output.sections });
+  // ログ書き込み + SSE（金自身の分析は user からの受領として扱う）
+  emit({
+    type: 'analysis', roleId, roleLabel: label, voice, phase, requestText, sections: output.sections,
+    from: roleId === 'kin' ? 'user' : roleId, to: 'kin', ...trace,
+  });
 }
 
 export function logKinReview(targetRoleId: RoleId, review: KinReviewResult, isJa: boolean): void {
   const target = isJa ? ROLE_LABEL[targetRoleId].ja : ROLE_LABEL[targetRoleId].en;
   const voice  = isJa ? KIN_REVIEW_VOICE[review.verdict].ja : KIN_REVIEW_VOICE[review.verdict].en;
   const title  = isJa ? `金 → ${target}  ─  レビュー` : `Kin → ${target}  ─  review`;
+  const trace  = collectTrace();
 
   const verdictColor =
     review.verdict === 'approve' ? chalk.green  :
@@ -139,6 +170,7 @@ export function logKinReview(targetRoleId: RoleId, review: KinReviewResult, isJa
                             row(chalk.dim((isJa ? '指示: ' : 'instructions: ') + ex(review.instructions)));
   if (review.additionalRoles.length > 0)
                             row(chalk.dim((isJa ? '追加駒: ' : 'add pieces: ') + review.additionalRoles.join(', ')));
+  rowTrace(trace);
   foot();
 
   // ログ書き込み + SSE
@@ -147,6 +179,7 @@ export function logKinReview(targetRoleId: RoleId, review: KinReviewResult, isJa
     phase: isJa ? 'レビュー' : 'review',
     verdict: review.verdict, reason: review.reason,
     instructions: review.instructions, additionalRoles: review.additionalRoles,
+    targetRoleId, from: 'kin', to: targetRoleId, ...trace,
   });
 }
 
@@ -156,6 +189,7 @@ export function logImpl(roleId: RoleId, requestText: string, analysis: RoleOutpu
   const voiceDef = IMPL_VOICE[roleId] ?? ANALYSIS_VOICE[roleId];
   const voice    = isJa ? voiceDef.ja : voiceDef.en;
   const phase    = isJa ? '実装' : 'implementation';
+  const trace    = collectTrace();
 
   // ターミナル表示
   console.log('');
@@ -173,16 +207,21 @@ export function logImpl(roleId: RoleId, requestText: string, analysis: RoleOutpu
   for (const sec of output.sections) {
     row(chalk.yellow(`[${sec.label}]`) + '  ' + chalk.white(ex(sec.body, WIDTH - sec.label.length - 6)));
   }
+  rowTrace(trace);
   foot();
 
-  // ログ書き込み + SSE
-  emit({ type: 'impl', roleId, roleLabel: label, voice, phase, requestText, sections: output.sections });
+  // ログ書き込み + SSE（送り元は成り駒ID）
+  emit({
+    type: 'impl', roleId, roleLabel: label, voice, phase, requestText, sections: output.sections,
+    from: PROMOTION_MAP[roleId] ?? roleId, to: 'kin', ...trace,
+  });
 }
 
 export function logKinSummary(allRoles: Partial<Record<RoleId, RoleOutput>>, requestText: string, output: RoleOutput, isJa: boolean): void {
   const voice = isJa ? KIN_SUMMARY_VOICE.ja : KIN_SUMMARY_VOICE.en;
   const label = isJa ? '金（Kin）' : 'Kin';
   const phase = isJa ? '統合' : 'integration';
+  const trace = collectTrace();
 
   // ターミナル表示
   console.log('');
@@ -202,8 +241,30 @@ export function logKinSummary(allRoles: Partial<Record<RoleId, RoleOutput>>, req
   for (const sec of output.sections) {
     row(chalk.yellow(`[${sec.label}]`) + '  ' + chalk.white(ex(sec.body, WIDTH - sec.label.length - 6)));
   }
+  rowTrace(trace);
   foot();
 
   // ログ書き込み + SSE
-  emit({ type: 'kin-summary', roleId: 'kin', roleLabel: label, voice, phase, requestText, sections: output.sections });
+  emit({
+    type: 'kin-summary', roleId: 'kin', roleLabel: label, voice, phase, requestText, sections: output.sections,
+    from: 'kin', to: 'user', ...trace,
+  });
+}
+
+/** セッション開始をイベントとして記録する（会話ビュー・盤面ビューの起点） */
+export function logSessionStart(requestText: string, isJa: boolean): void {
+  emit({
+    type: 'session-start',
+    requestText,
+    phase: isJa ? '開始' : 'start',
+    from: 'user', to: 'kin',
+  });
+}
+
+/** セッション終了をイベントとして記録する */
+export function logSessionEnd(isJa: boolean): void {
+  emit({
+    type: 'session-end',
+    phase: isJa ? '終了' : 'end',
+  });
 }

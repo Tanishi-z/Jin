@@ -4,6 +4,7 @@ import { text, select, note } from '@clack/prompts';
 import chalk from 'chalk';
 import { getLocale } from '../locale/index.js';
 import { runKinElicit } from '../agents/runner.js';
+import { drainCalls } from '../agents/callTrace.js';
 import { isDemoMode } from '../demo/state.js';
 import type { ElicitTurn } from '../roles/prompts.js';
 import type { Mode, NextScreen } from '../types/index.js';
@@ -162,6 +163,8 @@ export async function requirementsDialog(mode: Mode): Promise<NextScreen> {
 
     // 金の返答を取得
     const result = await runKinElicit(turns, mode);
+    // 対話ターンのトレースはセッション外なので破棄する（後続イベントへの混入防止）
+    drainCalls();
 
     // 金のメッセージを表示
     console.log('');

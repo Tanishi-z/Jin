@@ -2,12 +2,20 @@
  * Ollama API を呼び出してテキストを返す。
  * system/ollama.ts のセットアップ機能とは別に、テキスト生成専用の関数。
  */
+export interface OllamaOptions {
+  /** 推論温度（省略時 0.3） */
+  temperature?: number;
+  /** タイムアウト（省略時 120秒） */
+  timeoutMs?: number;
+}
+
 export async function callOllama(
   systemPrompt: string,
   userPrompt: string,
   model: string,
-  timeoutMs = 120_000,
+  opts: OllamaOptions = {},
 ): Promise<string> {
+  const { temperature = 0.3, timeoutMs = 120_000 } = opts;
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
 
@@ -22,7 +30,7 @@ export async function callOllama(
           { role: 'user',   content: userPrompt   },
         ],
         stream: false,
-        options: { temperature: 0.3 },
+        options: { temperature },
       }),
       signal: controller.signal,
     });

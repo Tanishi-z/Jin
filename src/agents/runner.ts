@@ -11,6 +11,7 @@ import {
 } from './techniques.js';
 import { findAgentForRole } from './registry.js';
 import { callOllama } from './ollamaRunner.js';
+import { recordCall } from './callTrace.js';
 import type { Mode, RoleId, RoleOutput, JinConfig } from '../types/index.js';
 
 /**
@@ -63,11 +64,16 @@ export async function runRole(
     // C: 角は自己一貫性（3視点並行）
     if (roleId === 'kaku') {
       rawText = await runSelfConsistency(
-        (perspective) => callAgent(system, buildUserPrompt(perspective), config, roleId, isJa, customAgent?.model),
+        (perspective) => callAgent(system, buildUserPrompt(perspective), config, roleId, isJa, customAgent?.model, {
+          temperature: customAgent?.temperature,
+          label: perspectiveLabel(perspective),
+        }),
         isJa,
       );
     } else {
-      rawText = await callAgent(system, buildUserPrompt(), config, roleId, isJa, customAgent?.model);
+      rawText = await callAgent(system, buildUserPrompt(), config, roleId, isJa, customAgent?.model, {
+        temperature: customAgent?.temperature,
+      });
     }
 
     const cleaned = large ? stripThinking(rawText) : rawText;
@@ -78,9 +84,18 @@ export async function runRole(
   }
 }
 
+/** callAgent の追加オプション */
+interface CallAgentOptions {
+  /** 推論温度（省略時 0.3） */
+  temperature?: number;
+  /** トレース記録用の補足ラベル（角の視点名など） */
+  label?: string;
+}
+
 /**
  * 設定されたエージェントに応じてLLMを呼び出す。
  * プロジェクトコンテキストが存在する場合はシステムプロンプトの先頭に付加する。
+ * 全呼び出しをトレースバッファ（callTrace.ts）に記録する。
  */
 async function callAgent(
   systemPrompt: string,
@@ -89,6 +104,7 @@ async function callAgent(
   roleId:       RoleId,
   isJa:         boolean = true,
   customModel?: string,   // .agent.md で指定されたモデル（優先）
+  opts:         CallAgentOptions = {},
 ): Promise<string> {
   const contextBlock = loadProjectContext(isJa);
   const fullSystem   = contextBlock
@@ -98,7 +114,31 @@ async function callAgent(
   // カスタムエージェントのモデル → 駒別設定 → デフォルトの順で優先
   const model = customModel ?? config.roleModels?.[roleId] ?? config.localModel;
   if (!model) throw new Error('モデルが設定されていません。jin を起動してモデルを選択してください。');
-  return callOllama(fullSystem, userPrompt, model);
+
+  const temperature = opts.temperature ?? 0.3;
+  const startedAt   = new Date();
+  const base = {
+    model, temperature,
+    systemPrompt: fullSystem,
+    userPrompt,
+    startedAt: startedAt.toISOString(),
+    label: opts.label,
+  };
+
+  try {
+    const responseText = await callOllama(fullSystem, userPrompt, model, { temperature });
+    recordCall({ ...base, responseText, durationMs: Date.now() - startedAt.getTime(), ok: true });
+    return responseText;
+  } catch (err) {
+    recordCall({ ...base, durationMs: Date.now() - startedAt.getTime(), ok: false });
+    throw err;
+  }
+}
+
+/** 自己一貫性の視点指示文からトレース用の短いラベルを抽出する */
+function perspectiveLabel(perspective: string): string {
+  const m = perspective.match(/^(?:【(.+?)】|\[(.+?)\])/);
+  return m?.[1] ?? m?.[2] ?? perspective.slice(0, 24);
 }
 
 /**
@@ -348,7 +388,9 @@ export async function runRoleImpl(
   const userPrompt = prompts.user({ requestText, analysisOutput: analysisText });
 
   try {
-    const rawText = await callAgent(system, userPrompt, config, roleId, isJa, customAgent?.model);
+    const rawText = await callAgent(system, userPrompt, config, roleId, isJa, customAgent?.model, {
+      temperature: customAgent?.temperature,
+    });
     const cleaned = large ? stripThinking(rawText) : rawText;
     return { output: parseOutput(roleId, cleaned), usedMock: false };
   } catch {

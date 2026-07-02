@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import type { LlmCallRecord } from '../agents/callTrace.js';
 
 const LOGS_DIR = path.join(process.cwd(), '.jin', 'logs');
 
@@ -11,7 +12,11 @@ export type InteractionEventType =
   | 'kin-review'
   | 'impl'
   | 'kin-summary'
-  | 'session-end';
+  | 'session-end'
+  | 'impl-task';   // 「手順を実装する」フローの実装イベント
+
+/** セッションの種別（vision=構想フロー / task=手順実装フロー） */
+export type SessionKind = 'vision' | 'task';
 
 export interface InteractionEvent {
   type:      InteractionEventType;
@@ -34,12 +39,31 @@ export interface InteractionEvent {
   reason?:   string;
   instructions?: string;
   additionalRoles?: string[];
+  // ── 以下は可視化拡張フィールド（すべて任意・旧ログと互換） ──
+  /** データフローの送り元ノードID（'user' / 駒ID / 成り駒ID） */
+  from?: string;
+  /** データフローの送り先ノードID */
+  to?: string;
+  /** kin-review の対象駒ID */
+  targetRoleId?: string;
+  /** 主に使用したモデル名（要約表示用） */
+  model?: string;
+  /** イベント全体の所要時間（ミリ秒） */
+  durationMs?: number;
+  /** このイベントを構成したLLM呼び出しの全記録（入力プロンプト全文を含む） */
+  llmCalls?: LlmCallRecord[];
+  /** impl-task の変更ファイル一覧 */
+  files?: Array<{ path: string; type: 'create' | 'modify' | 'delete' }>;
+  /** impl-task の実装説明 */
+  explanation?: string;
 }
 
 export interface InteractionSession {
   id:          string;
   requestText: string;
   requestType: string;
+  /** セッション種別（省略時は 'vision' 扱い＝旧ログ互換） */
+  kind?:       SessionKind;
   startedAt:   string;
   finishedAt?: string;
   events:      InteractionEvent[];
@@ -49,6 +73,7 @@ export interface SessionMeta {
   id:          string;
   requestText: string;
   requestType: string;
+  kind?:       SessionKind;
   startedAt:   string;
   finishedAt?: string;
   eventCount:  number;
@@ -70,7 +95,7 @@ function sessionPath(id: string): string {
  * 新しいインタラクションセッションを開始する。
  * 生成したセッションIDを返す。
  */
-export function startSession(requestText: string, requestType: string): string {
+export function startSession(requestText: string, requestType: string, kind: SessionKind = 'vision'): string {
   const now  = new Date();
   const ts   = now.toISOString().replace(/[:.]/g, '-').slice(0, 19);
   const slug = requestText.slice(0, 20).replace(/[\s　]+/g, '_').replace(/[^\w\u3040-\u30ff\u4e00-\u9fff_]/g, '') || 'session';
@@ -80,6 +105,7 @@ export function startSession(requestText: string, requestType: string): string {
     id,
     requestText,
     requestType,
+    kind,
     startedAt: now.toISOString(),
     events:    [],
   };
@@ -144,6 +170,7 @@ export function listSessions(): SessionMeta[] {
           id:         session.id,
           requestText: session.requestText,
           requestType: session.requestType,
+          kind:       session.kind,
           startedAt:  session.startedAt,
           finishedAt: session.finishedAt,
           eventCount: session.events.length,

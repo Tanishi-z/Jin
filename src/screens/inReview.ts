@@ -3,7 +3,7 @@ import chalk from 'chalk';
 import { getLocale } from '../locale/index.js';
 import { getRolesForRequest } from '../routing/roleRouter.js';
 import { runRole, runRoleImpl, runKinReview, runKinSummary } from '../agents/runner.js';
-import { logAnalysis, logKinReview, logImpl, logKinSummary } from './interactionLog.js';
+import { logAnalysis, logKinReview, logImpl, logKinSummary, logSessionStart, logSessionEnd } from './interactionLog.js';
 import { appendActivity } from '../activity/writer.js';
 import type { RoleTiming } from '../activity/writer.js';
 import { runHooks, hookOutputToContext } from '../hooks/runner.js';
@@ -51,6 +51,7 @@ export async function inReview(
 
   // インタラクションセッションを開始
   startSession(requestText, requestType);
+  logSessionStart(requestText, isJa);
 
   // ── pre-analysis フック ──
   const preHookResults = runHooks('pre-analysis', {
@@ -264,6 +265,7 @@ export async function inReview(
   }
 
   // インタラクションセッションを終了
+  logSessionEnd(isJa);
   endSession();
 
   const proposal: Proposal = {

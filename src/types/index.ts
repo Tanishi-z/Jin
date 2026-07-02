@@ -144,7 +144,7 @@ export type NextScreen =
   | { screen: 'docPreview'; proposal: Proposal }
   | { screen: 'applied' }
   | { screen: 'taskSelect'; feature?: Feature }
-  | { screen: 'implementing'; task: Task; feature: Feature }
+  | { screen: 'implementing'; task: Task; feature: Feature; instruction?: string }
   | { screen: 'diffReview'; result: ImplResult }
   | { screen: 'implemented'; task: Task }
   | { screen: 'exit' };
