@@ -48,6 +48,15 @@ export function buildLayout(data: DashboardData, isJa: boolean): string {
     </div>
   </div>
 
+  <!-- 布陣盤（将棋盤風フロービュー） -->
+  <div class="board-card">
+    <div class="card-title-row">
+      <div class="card-title">${isJa ? '布陣盤 — 駒のデータフロー' : 'Formation board — piece data flow'}</div>
+      <div class="card-subtitle">${isJa ? '実行中の駒が光り、報告・下知の流れが矢印で表示されます' : 'Active pieces glow; reports and directives flow as arrows'}</div>
+    </div>
+    <div id="board-svg-wrap"></div>
+  </div>
+
   <!-- ガントチャート（全幅） -->
   <div class="gantt-card">
     <div class="card-title-row">

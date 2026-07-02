@@ -513,5 +513,236 @@ export function buildStyles(isJa: boolean): string {
     }
 
     .history-detail.open { display: flex; }
+
+    /* ─── 布陣盤 ─── */
+    .board-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+    }
+
+    .board-svg {
+      width: 100%;
+      height: auto;
+      display: block;
+      background:
+        linear-gradient(rgba(201,162,39,0.02), rgba(201,162,39,0.05));
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+
+    .board-rank-line {
+      stroke: var(--border);
+      stroke-width: 1;
+      stroke-dasharray: 4 6;
+    }
+
+    .bd-node { transition: opacity 0.4s; }
+    .bd-node.idle { opacity: 0.35; }
+    .bd-node.active { opacity: 1; }
+    .bd-node.done { opacity: 0.85; }
+
+    .bd-piece {
+      fill: #1d1a12;
+      stroke: var(--pc, #888);
+      stroke-width: 1.5;
+      transition: filter 0.3s, stroke 0.3s;
+    }
+
+    .bd-node.active .bd-piece {
+      filter: drop-shadow(0 0 6px var(--pc, #888));
+      animation: bd-pulse 1.4s ease-in-out infinite;
+    }
+
+    .bd-node.done .bd-piece { stroke-width: 2; }
+
+    .bd-node.promoted .bd-piece {
+      stroke: var(--gold);
+      fill: #241d0c;
+      filter: drop-shadow(0 0 5px rgba(201,162,39,0.6));
+    }
+
+    .bd-node.promoted .bd-label { fill: var(--gold); }
+
+    @keyframes bd-pulse {
+      0%, 100% { filter: drop-shadow(0 0 3px var(--pc, #888)); }
+      50%       { filter: drop-shadow(0 0 10px var(--pc, #888)); }
+    }
+
+    .bd-label {
+      fill: var(--text);
+      font-size: 14px;
+      font-weight: 700;
+      pointer-events: none;
+    }
+
+    .bd-edge {
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-dasharray: 8 6;
+      animation: bd-flow 0.9s linear infinite;
+      opacity: 0.9;
+      transition: opacity 0.6s;
+    }
+
+    .bd-edge.fading { opacity: 0; }
+
+    .edge-flow    { stroke: #9ca3af; }
+    .edge-approve { stroke: var(--green); }
+    .edge-retry   { stroke: #ef4444; }
+    .edge-add     { stroke: #60a5fa; }
+
+    @keyframes bd-flow {
+      from { stroke-dashoffset: 28; }
+      to   { stroke-dashoffset: 0; }
+    }
+
+    /* ─── 会話ビュー ─── */
+    .conv-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      animation: fadeIn 0.25s ease;
+    }
+
+    .conv-row.right { flex-direction: row-reverse; }
+    .conv-row.center { justify-content: center; }
+
+    .conv-avatar {
+      flex-shrink: 0;
+      min-width: 40px;
+      height: 40px;
+      padding: 0 6px;
+      border-radius: 8px;
+      border: 1px solid var(--pc, var(--border));
+      background: color-mix(in srgb, var(--pc, #888) 12%, var(--bg));
+      color: var(--pc, var(--text));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+
+    .conv-bubble {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--pc, var(--border));
+      border-radius: 10px;
+      padding: 12px 14px;
+      max-width: 82%;
+      min-width: 240px;
+    }
+
+    .conv-row.right .conv-bubble {
+      border-left: 1px solid var(--border);
+      border-right: 3px solid var(--pc, var(--border));
+    }
+
+    .conv-narration {
+      color: var(--dim);
+      font-size: 12px;
+      font-style: italic;
+      padding: 6px 0;
+      text-align: center;
+    }
+
+    .conv-voice {
+      font-size: 12px;
+      font-style: italic;
+      color: var(--dim);
+      margin-bottom: 8px;
+    }
+
+    .conv-line {
+      font-size: 12px;
+      color: var(--text);
+      margin-bottom: 6px;
+      line-height: 1.5;
+    }
+
+    .conv-guidance {
+      font-size: 12px;
+      color: var(--text);
+      background: rgba(250,204,21,0.06);
+      border-left: 2px solid #facc15;
+      border-radius: 4px;
+      padding: 8px 10px;
+      margin: 6px 0;
+      line-height: 1.5;
+    }
+
+    .conv-guidance-label {
+      display: inline-block;
+      color: #facc15;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-right: 8px;
+    }
+
+    .conv-files { margin-top: 6px; }
+
+    .conv-file {
+      font-family: 'SF Mono', 'Cascadia Code', monospace;
+      font-size: 11px;
+      color: var(--text);
+      padding: 2px 0;
+    }
+
+    .conv-file-mark { margin-right: 6px; }
+    .conv-file-mark.type-create { color: var(--green); }
+    .conv-file-mark.type-modify { color: #facc15; }
+    .conv-file-mark.type-delete { color: #ff4444; }
+
+    /* 生プロンプト折りたたみ */
+    .conv-details {
+      margin-top: 10px;
+      border-top: 1px dashed var(--border);
+      padding-top: 8px;
+    }
+
+    .conv-details summary {
+      font-size: 11px;
+      color: var(--dim);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .conv-details summary:hover { color: var(--text); }
+
+    .call-block { margin-top: 10px; }
+
+    .call-block-title {
+      font-size: 11px;
+      color: var(--gold);
+      margin-bottom: 6px;
+    }
+
+    .call-part-label {
+      font-size: 10px;
+      color: var(--dim);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin: 8px 0 4px;
+    }
+
+    .call-pre {
+      background: #0a0a0a;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 10px 12px;
+      font-family: 'SF Mono', 'Cascadia Code', monospace;
+      font-size: 11px;
+      line-height: 1.55;
+      color: #bbb;
+      white-space: pre-wrap;
+      word-break: break-word;
+      max-height: 320px;
+      overflow-y: auto;
+    }
 `;
 }
