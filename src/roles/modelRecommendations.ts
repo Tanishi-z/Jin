@@ -1,5 +1,8 @@
 import type { RoleId } from '../types/index.js';
 
+/** 駒の表示順（セットアップ・割り当て画面で共通） */
+export const ROLE_ORDER: RoleId[] = ['kin', 'gin', 'hisha', 'kaku', 'keima', 'kyosha', 'fu'];
+
 /** 駒ごとの推奨モデル定義 */
 export interface RoleModelEntry {
   /** Ollama モデル名のキーワード（前方一致で照合） */
@@ -125,8 +128,11 @@ export function rankModelsForRole(
   const rec = ROLE_RECOMMENDATIONS[roleId];
 
   return installedNames.map((name) => {
+    // keyword は 'qwen3.5-27' 形式なので、'qwen3.5:27b' のようなタグ区切りも
+    // マッチするようコロンをハイフンに正規化して照合する
+    const normalized = name.toLowerCase().replace(/:/g, '-');
     const idx = rec.models.findIndex((m) =>
-      name.toLowerCase().includes(m.keyword.toLowerCase()),
+      normalized.includes(m.keyword.toLowerCase()),
     );
     const entry = idx >= 0 ? rec.models[idx]! : null;
     return {
@@ -135,4 +141,31 @@ export function rankModelsForRole(
       rank:   idx >= 0 ? idx : 999,
     };
   }).sort((a, b) => a.rank - b.rank);
+}
+
+/** 駒への推奨割り当て1件（理由付き） */
+export interface RecommendedAssignment {
+  name:   string;
+  reason: { ja: string; en: string } | null;
+}
+
+/**
+ * インストール済みモデルから各駒への推奨割り当てを計算する。
+ * 推奨キーワードにマッチするモデルがあり、かつデフォルトモデルと異なる場合のみ割り当てる。
+ */
+export function computeRecommendedRoleModels(
+  installedNames: string[],
+  defaultModel:   string,
+): Partial<Record<RoleId, RecommendedAssignment>> {
+  const result: Partial<Record<RoleId, RecommendedAssignment>> = {};
+
+  for (const roleId of ROLE_ORDER) {
+    const ranked = rankModelsForRole(roleId, installedNames);
+    const best   = ranked.find((r) => r.reason !== null);
+    if (best && best.name !== defaultModel) {
+      result[roleId] = { name: best.name, reason: best.reason };
+    }
+  }
+
+  return result;
 }

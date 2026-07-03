@@ -1,11 +1,9 @@
 import { select, note } from '@clack/prompts';
 import chalk from 'chalk';
 import { listInstalledModels } from '../system/ollama.js';
-import { ROLE_RECOMMENDATIONS, rankModelsForRole } from '../roles/modelRecommendations.js';
+import { ROLE_RECOMMENDATIONS, ROLE_ORDER, rankModelsForRole, computeRecommendedRoleModels } from '../roles/modelRecommendations.js';
 import { loadConfig, saveConfig } from '../config.js';
 import type { Mode, RoleId, NextScreen } from '../types/index.js';
-
-const ROLE_ORDER: RoleId[] = ['kin', 'gin', 'hisha', 'kaku', 'keima', 'kyosha', 'fu'];
 
 const PROMOTED_SUFFIX: Partial<Record<RoleId, string>> = {
   gin:    '→ 成銀',
@@ -105,22 +103,21 @@ async function applyRecommended(
   isJa:            boolean,
   mode:            Mode,
 ): Promise<NextScreen> {
-  // 各駒の最適モデルを計算
+  // 各駒の最適モデルを計算（localLLMSetup と共通ロジック）
+  const assignments = computeRecommendedRoleModels(installedNames, defaultModel);
   const recommended: Partial<Record<RoleId, string>> = {};
   const previewLines: string[] = [];
 
   for (const roleId of ROLE_ORDER) {
-    const rec    = ROLE_RECOMMENDATIONS[roleId];
-    const ranked = rankModelsForRole(roleId, installedNames);
-    // 推奨モデルが存在する（rank < 999）場合のみ割り当て
-    const best   = ranked.find((r) => r.reason !== null);
+    const rec  = ROLE_RECOMMENDATIONS[roleId];
+    const best = assignments[roleId];
 
     const promoted = promotedSuffix[roleId] ?? '';
     const nameCol  = isJa
       ? `${rec.nameJa} ${rec.nameEn}`.padEnd(12) + chalk.dim(promoted)
       : `${rec.nameEn} ${rec.nameJa}`.padEnd(12) + chalk.dim(promoted);
 
-    if (best && best.name !== defaultModel) {
+    if (best) {
       recommended[roleId] = best.name;
       const reason = best.reason ? (isJa ? best.reason.ja : best.reason.en) : '';
       const sizeLabel = installed.find((m) => m.name === best.name)?.sizeLabel ?? '';

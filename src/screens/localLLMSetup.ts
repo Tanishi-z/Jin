@@ -1,6 +1,7 @@
-import { select, spinner, note, confirm } from '@clack/prompts';
+import { select, groupMultiselect, spinner, note, confirm } from '@clack/prompts';
 import chalk from 'chalk';
 import { detectSpecs } from '../system/specs.js';
+import type { ModelStrength } from '../system/specs.js';
 import { fetchOllamaModels } from '../system/ollamaRegistry.js';
 import {
   isOllamaInstalled,
@@ -10,11 +11,27 @@ import {
   pullModel,
   getInstallInstructions,
 } from '../system/ollama.js';
-import { ROLE_RECOMMENDATIONS, rankModelsForRole } from '../roles/modelRecommendations.js';
+import { ROLE_RECOMMENDATIONS, ROLE_ORDER, computeRecommendedRoleModels } from '../roles/modelRecommendations.js';
 import { saveConfig } from '../config.js';
 import type { Mode, RoleId, NextScreen } from '../types/index.js';
 
-const ROLE_ORDER: RoleId[] = ['kin', 'gin', 'hisha', 'kaku', 'keima', 'kyosha', 'fu'];
+/** 強みグループの表示順とラベル */
+const STRENGTH_ORDER: ModelStrength[] = ['coding', 'reasoning', 'light', 'balanced', 'large'];
+
+const STRENGTH_LABELS: Record<ModelStrength, { ja: string; en: string }> = {
+  coding:    { ja: 'コード特化',   en: 'Coding' },
+  reasoning: { ja: '推論特化',     en: 'Reasoning' },
+  light:     { ja: '軽量・高速',   en: 'Light & Fast' },
+  balanced:  { ja: 'バランス',     en: 'Balanced' },
+  large:     { ja: '高品質・大型', en: 'Large & High-quality' },
+};
+
+/** 説明文をロケールに合わせて選び、指定長に切り詰める */
+function localizedDesc(description: string, isJa: boolean, max = 40): string {
+  const parts = description.split(' / ');
+  const text  = isJa ? parts[0] : (parts[1] ?? parts[0]);
+  return text.length > max ? `${text.slice(0, max)}…` : text;
+}
 
 export async function localLLMSetup(mode: Mode): Promise<NextScreen> {
   const isJa = mode === 'ja';
@@ -81,24 +98,36 @@ export async function localLLMSetup(mode: Mode): Promise<NextScreen> {
 
   const installedNames = new Set(installed.map((m) => m.name));
 
-  // ⑤ デフォルトモデル選択
-  const installedOptions = installed.map((m) => ({
-    value: m.name,
-    label: m.name,
-    hint:  isJa ? `✓ インストール済み  ${m.sizeLabel}` : `✓ installed  ${m.sizeLabel}`,
-  }));
+  // ⑤ インストールするモデルを強み別グループから複数選択
+  const groups: Record<string, Array<{ value: string; label: string; hint?: string }>> = {};
 
-  const downloadOptions = recommended
-    .filter((m) => !installedNames.has(m.name))
-    .map((m) => ({
+  if (installed.length > 0) {
+    groups[isJa ? 'インストール済み' : 'Installed'] = installed.map((m) => ({
       value: m.name,
-      label: m.label,
-      hint:  `${isJa ? 'ダウンロード' : 'Download'}  ${m.description}`,
+      label: m.name,
+      hint:  isJa ? `✓ 導入済み  ${m.sizeLabel}` : `✓ installed  ${m.sizeLabel}`,
     }));
+  }
 
-  const allOptions = [...installedOptions, ...downloadOptions];
+  for (const strength of STRENGTH_ORDER) {
+    const options = recommended
+      .filter((m) => !installedNames.has(m.name) && (m.strength ?? 'balanced') === strength)
+      .map((m) => ({
+        value: m.name,
+        label: m.label,
+        hint:  [
+          `RAM ${m.requiredRamGB}GB${isJa ? '〜' : '+'}`,
+          m.pulls ? `★${m.pulls}` : '',
+          localizedDesc(m.description, isJa),
+        ].filter(Boolean).join('  '),
+      }));
+    // 空グループは見出しごと出さない
+    if (options.length > 0) {
+      groups[isJa ? STRENGTH_LABELS[strength].ja : STRENGTH_LABELS[strength].en] = options;
+    }
+  }
 
-  if (allOptions.length === 0) {
+  if (Object.keys(groups).length === 0) {
     note(
       isJa
         ? 'RAMが不足しているため、推奨モデルがありません。\n最低 4GB の空きRAMが必要です。'
@@ -108,138 +137,140 @@ export async function localLLMSetup(mode: Mode): Promise<NextScreen> {
     return { screen: 'requestTypeSelect' };
   }
 
-  const defaultModel = await select<string>({
+  const selectedRaw = await groupMultiselect<string>({
     message: isJa
-      ? `デフォルトモデルを選択してください（インストール済み: ${installed.length} 件）`
-      : `Select the default model  (${installed.length} installed)`,
-    options: allOptions,
+      ? 'インストールするモデルを選んでください（スペースで選択・複数可）'
+      : 'Select models to install (space to toggle, multiple allowed)',
+    options: groups,
+    initialValues: [...installedNames],
+    required: true,
   });
 
-  if (typeof defaultModel === 'symbol') return { screen: 'requestTypeSelect' };
+  if (typeof selectedRaw === 'symbol') return { screen: 'requestTypeSelect' };
+  const selected = selectedRaw as string[];
+  if (selected.length === 0) return { screen: 'requestTypeSelect' };
 
-  // デフォルトモデルが未インストールならダウンロード
-  if (!installedNames.has(defaultModel)) {
-    const ok = await confirm({
-      message: isJa
-        ? `${defaultModel} をダウンロードしますか？`
-        : `Download ${defaultModel}?`,
-      initialValue: true,
-    });
-    if (typeof ok === 'symbol' || !ok) return { screen: 'requestTypeSelect' };
+  // 選択された未インストール分を順にダウンロード（失敗しても残りは継続）
+  const toPull = selected.filter((n) => !installedNames.has(n));
+  const pullFailed: string[] = [];
 
+  for (let i = 0; i < toPull.length; i++) {
+    const name  = toPull[i];
+    const count = `(${i + 1}/${toPull.length})`;
     const ps = spinner();
-    ps.start(isJa ? `${defaultModel} をダウンロード中...` : `Downloading ${defaultModel}...`);
+    ps.start(isJa ? `${count} ${name} をダウンロード中...` : `${count} Downloading ${name}...`);
     try {
-      await pullModel(defaultModel, (status) => { ps.message(status); });
-      ps.stop(isJa ? 'ダウンロード完了' : 'Download complete');
-      installed.push({ name: defaultModel, size: 0, sizeLabel: '—' });
-      installedNames.add(defaultModel);
+      await pullModel(name, (status) => { ps.message(`${count} ${name}  ${status}`); });
+      ps.stop(isJa ? `${count} ${name} ダウンロード完了` : `${count} ${name} downloaded`);
+      installed.push({ name, size: 0, sizeLabel: '—' });
+      installedNames.add(name);
     } catch {
-      ps.stop(chalk.red(isJa ? 'ダウンロードに失敗しました' : 'Download failed'));
-      return { screen: 'requestTypeSelect' };
+      ps.stop(chalk.red(isJa ? `${count} ${name} のダウンロードに失敗しました` : `${count} Failed to download ${name}`));
+      pullFailed.push(name);
     }
   }
 
-  // ⑥ 駒ごとのカスタマイズ確認
-  const doCustomize = await confirm({
-    message: isJa
-      ? '駒ごとに別のモデルを割り当てますか？（推奨モデルをプレビューします）'
-      : 'Assign a different model per piece?  (shows recommended models)',
-    initialValue: installed.length > 1,
-  });
+  if (pullFailed.length > 0) {
+    note(
+      pullFailed.map((n) => `  ✗ ${n}`).join('\n'),
+      isJa ? 'ダウンロードに失敗したモデル' : 'Failed downloads',
+    );
+  }
 
-  if (typeof doCustomize === 'symbol') return { screen: 'requestTypeSelect' };
+  // 既定モデルの候補 = 選択したうち実際にインストールされているもの
+  let candidates = selected.filter((n) => installedNames.has(n));
+  if (candidates.length === 0) candidates = [...installedNames];
+  if (candidates.length === 0) {
+    note(
+      isJa
+        ? '利用可能なモデルがありません。ネットワークを確認して再度お試しください。'
+        : 'No models available. Check your network and try again.',
+      isJa ? 'セットアップ未完了' : 'Setup incomplete',
+    );
+    return { screen: 'requestTypeSelect' };
+  }
 
+  // 既定モデルを1つ選択（候補が1件なら自動採用）
+  let defaultModel: string;
+  if (candidates.length === 1) {
+    defaultModel = candidates[0];
+    note(
+      isJa ? `既定モデル: ${defaultModel}` : `Default model: ${defaultModel}`,
+      isJa ? '既定モデルを設定しました' : 'Default model set',
+    );
+  } else {
+    const picked = await select<string>({
+      message: isJa ? '既定モデル（通常の駒が使うモデル）を選んでください' : 'Select the default model (used by pieces by default)',
+      options: candidates.map((n) => {
+        const rec = recommended.find((m) => m.name === n);
+        return {
+          value: n,
+          label: n,
+          hint:  rec ? localizedDesc(rec.description, isJa) : undefined,
+        };
+      }),
+      initialValue: candidates[0],
+    });
+    if (typeof picked === 'symbol') return { screen: 'requestTypeSelect' };
+    defaultModel = picked;
+  }
+
+  // ⑥ 駒ごとのおすすめ自動割当を提案
   const roleModels: Partial<Record<RoleId, string>> = {};
+  const installedList = [...installedNames];
+  const assignments   = computeRecommendedRoleModels(installedList, defaultModel);
+  const hasAssignments = Object.keys(assignments).length > 0;
 
-  if (doCustomize) {
-    const installedList = installed.map((m) => m.name);
-
-    for (const roleId of ROLE_ORDER) {
-      const rec     = ROLE_RECOMMENDATIONS[roleId];
-      const ranked  = rankModelsForRole(roleId, installedList);
-
-      // 推奨1位のモデルをデフォルト選択候補に
-      const bestMatch = ranked[0]?.name ?? defaultModel;
-
-      // 選択肢：推奨付きインストール済み → 残りのインストール済み → ダウンロード候補
-      const options = ranked.map((r) => {
-        const sizeLabel = installed.find((m) => m.name === r.name)?.sizeLabel ?? '';
-        const isTop     = r.rank === ranked[0]?.rank && r.reason !== null;
-        const hint = r.reason
-          ? `★ ${isJa ? r.reason.ja : r.reason.en}  ${sizeLabel}`
-          : `✓ ${isJa ? 'インストール済み' : 'installed'}  ${sizeLabel}`;
-        return { value: r.name, label: r.name, hint };
-      });
-
-      // ダウンロード候補（役割に推奨されているがまだ未インストール）
-      const downloadable = rec.models
-        .filter((m) => !installedNames.has(
-          installedList.find((n) => n.toLowerCase().includes(m.keyword.toLowerCase())) ?? '',
-        ))
-        .slice(0, 2)
-        .map((m) => ({
-          value: m.keyword,
-          label: m.keyword,
-          hint:  `${isJa ? 'ダウンロード  ' : 'Download  '}${isJa ? m.reasonJa : m.reasonEn}`,
-        }));
-
-      const roleLabel = isJa
-        ? `[${rec.nameJa} / ${rec.nameEn}]  ${rec.descJa}`
-        : `[${rec.nameEn} / ${rec.nameJa}]  ${rec.descEn}`;
-
-      const selected = await select<string>({
-        message: roleLabel,
-        options: [...options, ...downloadable],
-        initialValue: bestMatch,
-      });
-
-      if (typeof selected === 'symbol') break;
-
-      // ダウンロードが必要な場合
-      if (!installedNames.has(selected)) {
-        const ok = await confirm({
-          message: isJa ? `${selected} をダウンロードしますか？` : `Download ${selected}?`,
-          initialValue: true,
-        });
-        if (typeof ok !== 'symbol' && ok) {
-          const ps = spinner();
-          ps.start(isJa ? `${selected} をダウンロード中...` : `Downloading ${selected}...`);
-          try {
-            await pullModel(selected, (status) => { ps.message(status); });
-            ps.stop(isJa ? 'ダウンロード完了' : 'Download complete');
-            installedNames.add(selected);
-          } catch {
-            ps.stop(chalk.red(isJa ? 'ダウンロードに失敗しました。デフォルトを使用します' : 'Download failed. Using default'));
-            roleModels[roleId] = defaultModel;
-            continue;
-          }
-        } else {
-          roleModels[roleId] = defaultModel;
-          continue;
-        }
+  if (hasAssignments) {
+    const previewLines = ROLE_ORDER.map((roleId) => {
+      const rec  = ROLE_RECOMMENDATIONS[roleId];
+      const best = assignments[roleId];
+      const nameCol = `${rec.nameJa} ${rec.nameEn}`.padEnd(12);
+      if (best) {
+        const reason = best.reason ? (isJa ? best.reason.ja : best.reason.en) : '';
+        return `  ${nameCol}  ${chalk.cyan(best.name)}  ${chalk.dim('★ ' + reason)}`;
       }
+      return `  ${nameCol}  ${chalk.dim(defaultModel + (isJa ? '（既定）' : ' (default)'))}`;
+    });
+    note(previewLines.join('\n'), isJa ? '駒ごとのおすすめ割り当て' : 'Recommended per-piece assignment');
 
-      roleModels[roleId] = selected;
+    const applyAuto = await confirm({
+      message: isJa
+        ? 'このおすすめ割り当てを適用しますか？'
+        : 'Apply this recommended assignment?',
+      initialValue: true,
+    });
+
+    if (typeof applyAuto !== 'symbol' && applyAuto) {
+      for (const [roleId, a] of Object.entries(assignments) as Array<[RoleId, { name: string }]>) {
+        roleModels[roleId] = a.name;
+      }
     }
   }
 
   // ⑦ 設定を保存
   saveConfig({ localModel: defaultModel, roleModels });
 
-  // 割り当て結果をサマリー表示
+  // 結果サマリー
   const lines: string[] = [
-    `${isJa ? 'デフォルト' : 'Default'}: ${defaultModel}`,
+    `${isJa ? '既定モデル' : 'Default'}: ${defaultModel}`,
+    isJa
+      ? `ダウンロード: 成功 ${toPull.length - pullFailed.length} 件 / 失敗 ${pullFailed.length} 件`
+      : `Downloads: ${toPull.length - pullFailed.length} succeeded / ${pullFailed.length} failed`,
     '',
   ];
 
-  if (doCustomize && Object.keys(roleModels).length > 0) {
+  if (Object.keys(roleModels).length > 0) {
     for (const roleId of ROLE_ORDER) {
       const rec   = ROLE_RECOMMENDATIONS[roleId];
       const model = roleModels[roleId] ?? defaultModel;
-      const mark  = model === defaultModel ? chalk.dim('(default)') : chalk.cyan('◆');
+      const mark  = roleModels[roleId] ? chalk.cyan('◆') : chalk.dim(isJa ? '（既定）' : '(default)');
       lines.push(`${rec.nameJa} ${rec.nameEn.padEnd(8)} ${mark} ${model}`);
     }
+  } else {
+    lines.push(chalk.dim(isJa
+      ? '駒ごとの割り当ては「設定 → 駒ごとのモデルを設定する」からいつでも変更できます。'
+      : 'Per-piece assignment can be changed anytime via Settings → Piece model assignment.'));
   }
 
   note(lines.join('\n'), isJa ? '駒モデル設定を保存しました' : 'Piece model configuration saved');
