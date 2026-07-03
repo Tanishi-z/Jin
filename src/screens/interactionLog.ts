@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import type { RoleId, RoleOutput } from '../types/index.js';
+import type { RoleId, RoleOutput, Task, ImplResult } from '../types/index.js';
 import { PROMOTION_MAP } from '../types/index.js';
 import type { KinReviewResult } from '../agents/runner.js';
 import { drainCalls } from '../agents/callTrace.js';
@@ -248,6 +248,43 @@ export function logKinSummary(allRoles: Partial<Record<RoleId, RoleOutput>>, req
   emit({
     type: 'kin-summary', roleId: 'kin', roleLabel: label, voice, phase, requestText, sections: output.sections,
     from: 'kin', to: 'user', ...trace,
+  });
+}
+
+/** 「手順を実装する」フローの実装結果を表示・記録する */
+export function logTaskImpl(roleId: RoleId, task: Task, result: ImplResult, isJa: boolean): void {
+  const labelDef = PROMOTED_LABEL[roleId] ?? ROLE_LABEL[roleId];
+  const label    = isJa ? labelDef.ja : labelDef.en;
+  const voiceDef = IMPL_VOICE[roleId] ?? ANALYSIS_VOICE[roleId];
+  const voice    = isJa ? voiceDef.ja : voiceDef.en;
+  const phase    = isJa ? '手順実装' : 'task implementation';
+  const trace    = collectTrace();
+
+  // ターミナル表示
+  console.log('');
+  head(chalk.green, `${label}  ─  ${phase}`);
+  row(chalk.italic(chalk.white(`「${voice}」`)));
+  row();
+  sub(chalk.dim, isJa ? '受信' : 'in');
+  row(chalk.dim(`${isJa ? '手順' : 'task'}: `) + ex(task.title));
+  row();
+  sub(chalk.dim, isJa ? '返却' : 'out');
+  if (result.explanation) row(chalk.white(ex(result.explanation)));
+  for (const f of result.files) {
+    const mark = f.type === 'create' ? chalk.green('＋') : f.type === 'delete' ? chalk.red('－') : chalk.yellow('±');
+    row(`${mark} ${chalk.white(f.path)}`);
+  }
+  if (result.files.length === 0) row(chalk.dim(isJa ? '（ファイル変更なし）' : '(no file changes)'));
+  rowTrace(trace);
+  foot();
+
+  // ログ書き込み + SSE
+  emit({
+    type: 'impl-task', roleId, roleLabel: label, voice, phase,
+    requestText: task.title,
+    files: result.files.map((f) => ({ path: f.path, type: f.type })),
+    explanation: result.explanation,
+    from: PROMOTION_MAP[roleId] ?? roleId, to: 'user', ...trace,
   });
 }
 

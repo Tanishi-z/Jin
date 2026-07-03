@@ -1,8 +1,16 @@
 import { loadConfig } from '../config.js';
 import { isDemoMode } from '../demo/state.js';
 import { loadProjectContext } from '../context/index.js';
-import { ROLE_PROMPTS, IMPL_PROMPTS, KIN_REVIEW_PROMPTS, KIN_SUMMARY_PROMPTS, KIN_ELICIT_PROMPTS } from '../roles/prompts.js';
+import {
+  ROLE_PROMPTS, IMPL_PROMPTS, KIN_REVIEW_PROMPTS, KIN_SUMMARY_PROMPTS, KIN_ELICIT_PROMPTS,
+  TASK_FILE_SELECT_PROMPTS, TASK_IMPL_FORMAT, TASK_IMPL_USER,
+} from '../roles/prompts.js';
 import type { ElicitTurn } from '../roles/prompts.js';
+import {
+  buildFileTree, buildFileContext, parseSelectedFiles, parseTaskImplOutput, validateImplOutput,
+} from './implParser.js';
+import { routeTaskToRole } from '../routing/taskRouter.js';
+import type { ImplRoleId } from '../routing/taskRouter.js';
 import { FEW_SHOT_EXAMPLES } from '../roles/fewshot.js';
 import {
   isLargeModel, getModelForRole,
@@ -12,7 +20,7 @@ import {
 import { findAgentForRole } from './registry.js';
 import { callOllama } from './ollamaRunner.js';
 import { recordCall } from './callTrace.js';
-import type { Mode, RoleId, RoleOutput, JinConfig } from '../types/index.js';
+import type { Mode, RoleId, RoleOutput, JinConfig, Task, Feature, ImplResult } from '../types/index.js';
 
 /**
  * 指定した駒（ロール）でLLMを呼び出し、RoleOutputを返す。
@@ -396,6 +404,109 @@ export async function runRoleImpl(
   } catch {
     const mock = await getMockOutput(roleId, mode);
     return { output: mock, usedMock: true };
+  }
+}
+
+/** runTaskImpl の結果 */
+export interface TaskImplRunResult {
+  result: ImplResult;
+  /** LLM呼び出し自体に失敗した場合 true（結果の files は空） */
+  failed: boolean;
+  /** 実装を担当した駒（成り駒の元ID） */
+  roleId: ImplRoleId;
+}
+
+/**
+ * 「手順を実装する」フローの実装ランナー。
+ * 1. タスク内容から担当駒を決定
+ * 2. LLMに読むべき既存ファイルを選定させる
+ * 3. 選定ファイルの実内容とともに実装を依頼し、FileChange[] にパースする
+ * 出力が不完全な場合は矯正指示付きで1回だけ再試行する。
+ * 失敗時はモックに落とさず、files: [] と説明のみを返す（偽コードの適用事故を防ぐ）。
+ */
+export async function runTaskImpl(
+  task:              Task,
+  feature:           Feature,
+  mode:              Mode,
+  extraInstruction?: string,
+): Promise<TaskImplRunResult> {
+  const config      = loadConfig();
+  const modeKey     = mode === 'ja' ? 'ja' : 'global';
+  const isJa        = mode === 'ja';
+  const roleId      = routeTaskToRole(task, feature);
+  const customAgent = findAgentForRole(roleId, 'impl', config.activeAgents);
+
+  const emptyResult = (explanation: string): ImplResult => ({ task, files: [], explanation });
+
+  // ── 1. ファイル選定コール ──
+  let selectedFiles: string[] = [];
+  const fileTree = buildFileTree();
+  try {
+    const selectPrompts = TASK_FILE_SELECT_PROMPTS[modeKey];
+    const selectRaw = await callAgent(
+      selectPrompts.system,
+      selectPrompts.user({
+        taskTitle:    task.title,
+        taskDetail:   task.detail ?? '',
+        featureTitle: feature.title,
+        fileTree,
+      }),
+      config, roleId, isJa, customAgent?.model,
+      { temperature: 0.2, label: isJa ? 'ファイル選定' : 'file selection' },
+    );
+    selectedFiles = parseSelectedFiles(selectRaw);
+  } catch {
+    // 選定失敗はファイルコンテキスト無しで続行する
+    selectedFiles = [];
+  }
+
+  // ── 2. 実装コール（検証NG時は矯正指示付きで1回だけ再試行） ──
+  const persona = customAgent?.systemPrompt ?? IMPL_PROMPTS[roleId][modeKey].system;
+  const system  = `${persona}\n${TASK_IMPL_FORMAT[modeKey]}`;
+
+  const buildParams = (correction?: string) => TASK_IMPL_USER[modeKey]({
+    taskTitle:          task.title,
+    taskDetail:         task.detail ?? '',
+    featureTitle:       feature.title,
+    featureDescription: feature.description ?? '',
+    fileContext:        buildFileContext(selectedFiles),
+    extraInstruction:   [extraInstruction, correction].filter(Boolean).join('\n'),
+  });
+
+  try {
+    let rawText = await callAgent(system, buildParams(), config, roleId, isJa, customAgent?.model, {
+      temperature: customAgent?.temperature ?? 0.2,
+    });
+    let parsed = parseTaskImplOutput(stripThinking(rawText));
+    let problem = validateImplOutput(parsed, isJa);
+
+    if (problem) {
+      rawText = await callAgent(system, buildParams(problem), config, roleId, isJa, customAgent?.model, {
+        temperature: customAgent?.temperature ?? 0.2,
+        label: isJa ? '再試行' : 'retry',
+      });
+      parsed  = parseTaskImplOutput(stripThinking(rawText));
+      problem = validateImplOutput(parsed, isJa);
+    }
+
+    if (problem) {
+      // 2回とも不完全: 生出力を説明として返し、ファイルは適用させない
+      const header = isJa
+        ? '出力の解析に失敗したため、ファイル変更は生成されませんでした。LLMの出力:\n\n'
+        : 'Failed to parse the output; no file changes were generated. Raw LLM output:\n\n';
+      return { result: emptyResult(header + rawText.trim()), failed: false, roleId };
+    }
+
+    return {
+      result: { task, files: parsed.files, explanation: parsed.explanation || (isJa ? '（説明なし）' : '(no explanation)') },
+      failed: false,
+      roleId,
+    };
+  } catch {
+    const msg = isJa
+      ? 'LLMの呼び出しに失敗しました。Ollama が起動しているか確認してください（ollama serve）。'
+      : 'LLM call failed. Make sure Ollama is running (ollama serve).';
+    return { result: emptyResult(msg), failed: true, roleId };
   }
 }
 

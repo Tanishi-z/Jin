@@ -230,11 +230,11 @@ export async function cli(options: CliOptions = {}): Promise<void> {
         break;
 
       case 'implementing':
-        next = await implementing(mode, next.task, next.feature);
+        next = await implementing(mode, next.task, next.feature, next.instruction);
         break;
 
       case 'diffReview':
-        next = await diffReview(mode, next.result);
+        next = await diffReview(mode, next.result, next.feature);
         break;
 
       case 'implemented':

@@ -51,6 +51,29 @@ export interface KinSummaryPrompt {
   }) => string;
 }
 
+/** 手順実装（実ファイル生成）用プロンプトの入力パラメータ */
+export interface TaskImplPromptParams {
+  taskTitle: string;
+  taskDetail: string;
+  featureTitle: string;
+  featureDescription: string;
+  /** 参照ファイルの実内容（パス見出し付きで連結済み） */
+  fileContext: string;
+  /** ユーザーからの追加指示（再生成時） */
+  extraInstruction: string;
+}
+
+/** ファイル選定（実装前にどのファイルを読むか決める）用プロンプト */
+export interface TaskFileSelectPrompt {
+  system: string;
+  user: (params: {
+    taskTitle: string;
+    taskDetail: string;
+    featureTitle: string;
+    fileTree: string;
+  }) => string;
+}
+
 /** 出力フォーマットの共通指示 */
 const FORMAT_JA = `
 # 出力形式
@@ -573,4 +596,117 @@ Output README updates, spec docs, and implementation checklists in concrete Mark
         `${FORMAT_EN}\n\nRequired sections: README updates, Spec document, Implementation checklist\n\n# Vision\n${requestText}\n\n# Documentation plan\n${analysisOutput}`,
     },
   },
+};
+
+// ── 手順実装（実ファイル生成）用プロンプト ──────────────────────────────────────
+
+export const TASK_FILE_SELECT_PROMPTS: Record<'ja' | 'global', TaskFileSelectPrompt> = {
+  ja: {
+    system: `あなたはソフトウェアエンジニアです。
+これから指定された手順を実装します。その前に、実装のために内容を読むべき既存ファイルを選んでください。`,
+    user: ({ taskTitle, taskDetail, featureTitle, fileTree }) =>
+      `# 構想\n${featureTitle}\n\n# 実装する手順\n${taskTitle}\n${taskDetail}\n\n# プロジェクトのファイル一覧\n${fileTree}\n\n# 指示\n実装のために内容を読むべきファイルを最大5件、上の一覧から選んでください。\n1行に1パスのみを出力し、説明・番号・記号は付けないでください。\n読むべきファイルがなければ「なし」とだけ出力してください。`,
+  },
+  global: {
+    system: `You are a software engineer.
+You are about to implement the given step. First, choose which existing files you need to read.`,
+    user: ({ taskTitle, taskDetail, featureTitle, fileTree }) =>
+      `# Vision\n${featureTitle}\n\n# Step to implement\n${taskTitle}\n${taskDetail}\n\n# Project files\n${fileTree}\n\n# Instruction\nPick up to 5 files from the list above that you need to read before implementing.\nOutput exactly one path per line, with no explanations, numbering, or bullets.\nIf none are needed, output only "none".`,
+  },
+};
+
+/** 手順実装の出力形式（システムプロンプトの末尾に連結する厳格な指示） */
+export const TASK_IMPL_FORMAT: Record<'ja' | 'global', string> = {
+  ja: `
+# 出力形式（厳守）
+前置き・後書きは書かず、必ず次の形式で出力してください。
+
+## 説明
+（変更内容の概要を2〜3行で）
+
+## ファイル: パス/ファイル名
+\`\`\`
+（このファイルの完全な内容）
+\`\`\`
+
+# ルール
+- 「## ファイル:」見出しは、新規作成・変更するファイル1つにつき1回書く
+- コードブロックにはそのファイルの**全文**を入れる。「...」「（省略）」「// 既存のまま」等の省略は禁止
+- 既存ファイルを変更する場合も、変更後の全文を出力する
+- 変更しないファイルは出力しない
+- パスはプロジェクトルートからの相対パスで書く
+
+# 出力例
+## 説明
+CSVエクスポートに管理者チェックを追加しました。
+
+## ファイル: src/middleware/requireRole.ts
+\`\`\`
+import { Request, Response, NextFunction } from 'express';
+
+export function requireRole(role: string) {
+  return (req: Request, res: Response, next: NextFunction) => {
+    if (req.user?.role !== role) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+    next();
+  };
+}
+\`\`\``,
+  global: `
+# Output format (strict)
+Do not write any preamble or closing remarks. Output exactly in this format:
+
+## Explanation
+(2-3 lines summarizing the change)
+
+## File: path/to/file
+\`\`\`
+(the complete content of this file)
+\`\`\`
+
+# Rules
+- Write one "## File:" heading per created or modified file
+- The code block must contain the **entire file**. Never abbreviate with "...", "(omitted)", "// unchanged", etc.
+- When modifying an existing file, output the full content after the change
+- Do not output files that are not changed
+- Paths are relative to the project root
+
+# Example
+## Explanation
+Added an admin check to the CSV export.
+
+## File: src/middleware/requireRole.ts
+\`\`\`
+import { Request, Response, NextFunction } from 'express';
+
+export function requireRole(role: string) {
+  return (req: Request, res: Response, next: NextFunction) => {
+    if (req.user?.role !== role) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+    next();
+  };
+}
+\`\`\``,
+};
+
+/** 手順実装のユーザープロンプトを組み立てる */
+export const TASK_IMPL_USER: Record<'ja' | 'global', (params: TaskImplPromptParams) => string> = {
+  ja: ({ taskTitle, taskDetail, featureTitle, featureDescription, fileContext, extraInstruction }) =>
+    [
+      `# 構想\n${featureTitle}${featureDescription ? `\n${featureDescription}` : ''}`,
+      `# 実装する手順\n${taskTitle}${taskDetail ? `\n${taskDetail}` : ''}`,
+      fileContext ? `# 既存ファイルの内容\n${fileContext}` : '',
+      extraInstruction ? `# 追加指示（必ず反映すること）\n${extraInstruction}` : '',
+      `上記の手順を実装してください。`,
+    ].filter(Boolean).join('\n\n'),
+  global: ({ taskTitle, taskDetail, featureTitle, featureDescription, fileContext, extraInstruction }) =>
+    [
+      `# Vision\n${featureTitle}${featureDescription ? `\n${featureDescription}` : ''}`,
+      `# Step to implement\n${taskTitle}${taskDetail ? `\n${taskDetail}` : ''}`,
+      fileContext ? `# Existing file contents\n${fileContext}` : '',
+      extraInstruction ? `# Additional instructions (must be applied)\n${extraInstruction}` : '',
+      `Implement the step above.`,
+    ].filter(Boolean).join('\n\n'),
 };

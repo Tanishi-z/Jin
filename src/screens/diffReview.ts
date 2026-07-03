@@ -2,7 +2,7 @@ import { select, note, text } from '@clack/prompts';
 import chalk from 'chalk';
 import { getLocale } from '../locale/index.js';
 import { isDemoMode } from '../demo/state.js';
-import type { Mode, ImplResult, FileChange, NextScreen } from '../types/index.js';
+import type { Mode, ImplResult, FileChange, Feature, NextScreen } from '../types/index.js';
 
 /** ファイル変更をターミナルで見やすく整形する */
 function formatFileChange(change: FileChange): string {
@@ -43,7 +43,7 @@ function formatFileChange(change: FileChange): string {
   return header;
 }
 
-export async function diffReview(mode: Mode, result: ImplResult): Promise<NextScreen> {
+export async function diffReview(mode: Mode, result: ImplResult, feature: Feature): Promise<NextScreen> {
   const t    = getLocale(mode);
   const isJa = mode === 'ja';
 
@@ -78,9 +78,11 @@ export async function diffReview(mode: Mode, result: ImplResult): Promise<NextSc
         message: isJa ? '追加の指示を入力してください' : 'Enter additional instructions',
         placeholder: isJa ? '例：エラーメッセージを日本語にしてください' : 'e.g. Add error logging',
       });
-      if (typeof instruction === 'symbol') return { screen: 'diffReview', result };
-      // 追加指示を受けて再実装（現在はモックのため同じ結果を返す）
-      return { screen: 'diffReview', result };
+      if (typeof instruction === 'symbol' || !instruction.trim()) {
+        return { screen: 'diffReview', result, feature };
+      }
+      // 追加指示付きで再実装する
+      return { screen: 'implementing', task: result.task, feature, instruction: instruction.trim() };
     }
     default:
       return { screen: 'taskSelect' };
