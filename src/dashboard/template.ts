@@ -29,6 +29,26 @@ ${buildLayout(data, isJa)}
 ${buildChartsScript(data, isJa)}
 ${buildConversationScript()}
 ${buildBoardScript()}
+
+  // ── 1ページフィット（14インチ MacBook Pro 基準） ─────────────────────────────
+  // 画面がステージより大きければ拡大、小さければ等倍のままスクロール
+  const STAGE_W = 1512;
+  const STAGE_H = 852;
+
+  function fitStage() {
+    const stage = document.getElementById('stage');
+    if (!stage) return;
+    const scale = Math.max(1, Math.min(window.innerWidth / STAGE_W, window.innerHeight / STAGE_H));
+    stage.style.transform = 'scale(' + scale + ')';
+    // 拡大時は余白を等分して中央寄せする
+    const extraX = window.innerWidth  - STAGE_W * scale;
+    const extraY = window.innerHeight - STAGE_H * scale;
+    stage.style.marginLeft = (extraX > 0 ? extraX / 2 : 0) + 'px';
+    stage.style.marginTop  = (extraY > 0 ? extraY / 2 : 0) + 'px';
+  }
+
+  window.addEventListener('resize', fitStage);
+  fitStage();
 </script>
 </body>
 </html>`;

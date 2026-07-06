@@ -26,23 +26,40 @@ export function buildStyles(isJa: boolean): string {
       color: var(--text);
       font-family: 'SF Pro Text', 'Hiragino Sans', system-ui, sans-serif;
       font-size: 14px;
-      min-height: 100vh;
-      padding: 0 0 60px;
+      overflow: auto;
+    }
+
+    /* ─── 固定ステージ（14インチ MacBook Pro 基準の1ページ） ───
+       大きい画面では transform: scale() で拡大、小さい画面では等倍スクロール */
+    #stage {
+      width: 1512px;
+      height: 852px;
+      transform-origin: top left;
+      display: flex;
+      flex-direction: column;
+      padding: 10px 16px 14px;
     }
 
     /* ─── ヘッダー ─── */
     header {
       border-bottom: 1px solid var(--border);
-      padding: 20px 32px;
+      padding: 6px 4px 10px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 16px;
+      flex-shrink: 0;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
     }
 
     .logo {
       font-family: 'SF Mono', 'Cascadia Code', monospace;
-      font-size: 22px;
+      font-size: 20px;
       font-weight: 700;
       background: linear-gradient(180deg, var(--red1), var(--red2), var(--red3), var(--red4));
       -webkit-background-clip: text;
@@ -53,12 +70,12 @@ export function buildStyles(isJa: boolean): string {
 
     .tagline {
       color: var(--dim);
-      font-size: 13px;
-      margin-top: 2px;
+      font-size: 12px;
     }
 
     .badges {
       display: flex;
+      align-items: center;
       gap: 8px;
       flex-shrink: 0;
     }
@@ -67,80 +84,113 @@ export function buildStyles(isJa: boolean): string {
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: 20px;
-      padding: 4px 12px;
+      padding: 3px 12px;
       font-size: 12px;
       color: var(--dim);
     }
 
     .badge span { color: var(--text); }
 
-    /* ─── メインコンテンツ ─── */
-    main { padding: 32px; display: flex; flex-direction: column; gap: 28px; }
+    /* ─── メイングリッド（3カラム） ─── */
+    main {
+      flex: 1;
+      min-height: 0;
+      display: grid;
+      grid-template-columns: 330px 1fr 430px;
+      gap: 12px;
+      padding-top: 12px;
+    }
+
+    .col {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      min-height: 0;
+      min-width: 0;
+    }
+
+    /* ─── 共通カード ─── */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px 16px;
+      min-height: 0;
+    }
 
     /* ─── サマリーカード ─── */
     .stats-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      flex-shrink: 0;
     }
 
     .stat-card {
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 20px 24px;
+      padding: 10px 14px;
     }
 
     .stat-label {
-      font-size: 12px;
+      font-size: 11px;
       color: var(--dim);
       text-transform: uppercase;
       letter-spacing: 0.08em;
     }
 
     .stat-value {
-      font-size: 36px;
+      font-size: 24px;
       font-weight: 700;
-      margin-top: 6px;
+      margin-top: 4px;
       line-height: 1;
       font-variant-numeric: tabular-nums;
     }
 
-    .stat-sub {
-      font-size: 12px;
+    .stat-value-sub {
+      font-size: 14px;
       color: var(--dim);
-      margin-top: 6px;
     }
 
-    /* ─── チャート行 ─── */
+    .stat-sub {
+      font-size: 11px;
+      color: var(--dim);
+      margin-top: 4px;
+    }
+
+    /* ─── チャート行（中央カラム下段） ─── */
     .charts-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 16px;
+      gap: 12px;
+      height: 216px;
+      flex-shrink: 0;
     }
 
     .chart-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 20px 24px;
+      display: flex;
+      flex-direction: column;
     }
 
     .card-title {
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 600;
       color: var(--dim);
       text-transform: uppercase;
       letter-spacing: 0.08em;
-      margin-bottom: 16px;
+      margin-bottom: 10px;
     }
 
     .card-title-row {
       display: flex;
       align-items: baseline;
       justify-content: space-between;
-      margin-bottom: 16px;
+      margin-bottom: 8px;
+      gap: 8px;
     }
+
+    .card-title-row .card-title { margin-bottom: 0; }
 
     .card-subtitle {
       font-size: 11px;
@@ -148,31 +198,37 @@ export function buildStyles(isJa: boolean): string {
       font-weight: 400;
       text-transform: none;
       letter-spacing: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .chart-wrap {
       position: relative;
-      height: 180px;
+      flex: 1;
+      min-height: 0;
     }
 
     /* ガントチャート */
     .gantt-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 20px 24px;
+      display: flex;
+      flex-direction: column;
     }
 
     .gantt-wrap {
       position: relative;
+      flex: 1;
+      min-height: 0;
     }
 
     /* 手順進捗バー */
+    .progress-card { flex-shrink: 0; }
+
     .task-pct {
-      font-size: 42px;
+      font-size: 18px;
       font-weight: 700;
       color: var(--green);
-      margin-bottom: 12px;
+      line-height: 1;
     }
 
     .progress-bar-wrap {
@@ -180,7 +236,6 @@ export function buildStyles(isJa: boolean): string {
       border-radius: 4px;
       height: 8px;
       overflow: hidden;
-      margin-bottom: 12px;
     }
 
     .progress-bar {
@@ -190,107 +245,66 @@ export function buildStyles(isJa: boolean): string {
       transition: width 0.6s ease;
     }
 
-    .task-detail {
-      display: flex;
-      justify-content: space-between;
-      font-size: 12px;
-      color: var(--dim);
-    }
+    /* ─── 駒の報告（コンパクト行） ─── */
+    .roles-card { flex-shrink: 0; }
 
-    /* ─── 駒カード ─── */
-    .roles-title {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--dim);
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      margin-bottom: 16px;
-    }
-
-    .roles-grid {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 12px;
-    }
-
-    .role-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 18px 16px 14px;
+    .roles-rows {
       display: flex;
       flex-direction: column;
-      gap: 0;
-      transition: border-color 0.2s;
-      position: relative;
-      overflow: hidden;
     }
 
-    .role-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 3px;
+    .role-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 12px;
+    }
+
+    .role-row:last-child { border-bottom: none; }
+
+    .role-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 2px;
       background: var(--role-color);
-      opacity: 0.8;
+      flex-shrink: 0;
     }
 
-    .role-card:hover { border-color: var(--dim); }
-
-    /* 英語名：大きく */
-    .role-name-en {
-      font-size: 18px;
-      font-weight: 700;
-      letter-spacing: 0.02em;
-      line-height: 1;
-      margin-bottom: 3px;
+    .role-row-name {
+      font-weight: 600;
+      color: var(--role-color);
+      white-space: nowrap;
+      min-width: 96px;
     }
 
-    /* 漢字：小さくサブテキストとして */
-    .role-piece {
-      font-size: 11px;
-      font-weight: 500;
-      opacity: 0.55;
-      margin-bottom: 8px;
-    }
-
-    /* 役割説明 */
-    .role-desc {
-      font-size: 11px;
-      color: var(--dim);
-      line-height: 1.45;
+    .role-row-desc {
       flex: 1;
-      margin-bottom: 12px;
-    }
-
-    /* 区切り線 */
-    .role-divider {
-      height: 1px;
-      background: var(--border);
-      margin-bottom: 10px;
-    }
-
-    .role-count {
-      font-size: 22px;
-      font-weight: 700;
-      margin-bottom: 2px;
-      font-variant-numeric: tabular-nums;
-      line-height: 1;
-    }
-
-    .role-count-label {
-      font-size: 10px;
       color: var(--dim);
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
+      font-size: 11px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .role-row-count {
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      color: var(--role-color);
     }
 
     /* ─── 决定事項 ─── */
     .decisions-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 20px 24px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .decisions-scroll {
+      flex: 1;
+      overflow-y: auto;
+      min-height: 0;
     }
 
     .decision-list { list-style: none; }
@@ -298,21 +312,27 @@ export function buildStyles(isJa: boolean): string {
     .decision-item {
       display: flex;
       align-items: center;
-      gap: 16px;
-      padding: 10px 0;
+      gap: 12px;
+      padding: 6px 0;
       border-bottom: 1px solid var(--border);
+      font-size: 12px;
     }
 
     .decision-item:last-child { border-bottom: none; }
 
     .decision-date {
-      font-size: 12px;
+      font-size: 11px;
       color: var(--dim);
       white-space: nowrap;
       font-variant-numeric: tabular-nums;
     }
 
-    .decision-title { color: var(--text); }
+    .decision-title {
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
 
     .empty-state {
       color: var(--dim);
@@ -322,14 +342,11 @@ export function buildStyles(isJa: boolean): string {
 
     /* ─── リフレッシュ ─── */
     .refresh-btn {
-      position: fixed;
-      bottom: 20px;
-      right: 24px;
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: 20px;
       color: var(--dim);
-      padding: 8px 16px;
+      padding: 3px 12px;
       font-size: 12px;
       cursor: pointer;
       transition: color 0.2s, border-color 0.2s;
@@ -337,27 +354,22 @@ export function buildStyles(isJa: boolean): string {
 
     .refresh-btn:hover { color: var(--text); border-color: var(--dim); }
 
-    @media (max-width: 1100px) {
-      .stats-grid  { grid-template-columns: repeat(2, 1fr); }
-      .charts-row  { grid-template-columns: 1fr; }
-      .roles-grid  { grid-template-columns: repeat(4, 1fr); }
-    }
-
     /* ─── リアルタイムログ ─── */
     .live-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 20px 24px;
-      margin: 0 32px 20px;
+      flex: 3;
+      display: flex;
+      flex-direction: column;
     }
 
     .live-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 16px;
+      margin-bottom: 10px;
+      flex-shrink: 0;
     }
+
+    .live-header .card-title { margin-bottom: 0; }
 
     .live-status {
       display: flex;
@@ -386,7 +398,8 @@ export function buildStyles(isJa: boolean): string {
       display: flex;
       flex-direction: column;
       gap: 10px;
-      max-height: 420px;
+      flex: 1;
+      min-height: 0;
       overflow-y: auto;
       padding-right: 4px;
     }
@@ -469,18 +482,18 @@ export function buildStyles(isJa: boolean): string {
 
     /* ─── 履歴ビューア ─── */
     .history-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 20px 24px;
-      margin: 0 32px 20px;
+      flex: 2;
+      display: flex;
+      flex-direction: column;
     }
 
     .history-list {
       display: flex;
       flex-direction: column;
       gap: 2px;
-      margin-top: 12px;
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
     }
 
     .history-session {
@@ -502,29 +515,34 @@ export function buildStyles(isJa: boolean): string {
     .history-session-count { font-size: 11px; color: var(--dim); white-space: nowrap; }
 
     .history-detail {
-      margin-top: 16px;
-      padding-top: 16px;
+      margin-top: 10px;
+      padding-top: 10px;
       border-top: 1px solid var(--border);
       display: none;
       flex-direction: column;
       gap: 10px;
-      max-height: 480px;
+      max-height: 55%;
       overflow-y: auto;
+      flex-shrink: 0;
     }
 
     .history-detail.open { display: flex; }
 
     /* ─── 布陣盤 ─── */
     .board-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 20px 24px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #board-svg-wrap {
+      flex: 1;
+      min-height: 0;
     }
 
     .board-svg {
       width: 100%;
-      height: auto;
+      height: 100%;
       display: block;
       background:
         linear-gradient(rgba(201,162,39,0.02), rgba(201,162,39,0.05));

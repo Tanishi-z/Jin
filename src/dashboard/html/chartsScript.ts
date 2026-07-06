@@ -80,8 +80,7 @@ export function buildChartsScript(data: DashboardData, isJa: boolean): string {
   const ganttLabels = ganttData.rows.map(r => IS_JA ? r.nameJa + '  ' + r.nameEn : r.nameEn);
   const ganttFloats = ganttData.rows.map(r => [r.startSec, r.endSec]);
   const ganttColors = ganttData.rows.map(r => r.color);
-  const ganttHeight = Math.max(180, ganttData.rows.length * 44 + 40);
-  document.getElementById('chart-gantt').parentElement.style.height = ganttHeight + 'px';
+  // 高さは1ページレイアウト側（.gantt-wrap の flex）で固定
 
   new Chart(document.getElementById('chart-gantt'), {
     type: 'bar',
@@ -94,7 +93,7 @@ export function buildChartsScript(data: DashboardData, isJa: boolean): string {
         borderColor:     ganttColors,
         borderWidth:     1,
         borderRadius:    3,
-        barThickness:    22,
+        barThickness:    10,
       }],
     },
     options: {
@@ -135,7 +134,7 @@ export function buildChartsScript(data: DashboardData, isJa: boolean): string {
         },
         y: {
           grid:  { color: GRID_COLOR },
-          ticks: { font: { size: 12 } },
+          ticks: { font: { size: 10 } },
         },
       },
     },
