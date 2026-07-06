@@ -281,11 +281,25 @@ export function buildStyles(isJa: boolean): string {
 
     .role-row-desc {
       flex: 1;
+      min-width: 0;
       color: var(--dim);
       font-size: 11px;
       white-space: nowrap;
       overflow: hidden;
-      text-overflow: ellipsis;
+    }
+
+    .role-row-desc .marquee-inner { display: inline-block; }
+
+    /* はみ出す説明文だけ右から左へ流す（.scrolling はJSが付与、ホバーで一時停止） */
+    .role-row-desc.scrolling .marquee-inner {
+      animation: marquee var(--marquee-dur, 10s) linear infinite;
+    }
+
+    .role-row:hover .marquee-inner { animation-play-state: paused; }
+
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
     }
 
     .role-row-count {

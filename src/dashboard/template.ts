@@ -54,6 +54,24 @@ ${buildBoardScript()}
 
   window.addEventListener('resize', fitStage);
   fitStage();
+
+  // ── 駒の報告欄: はみ出す説明文をマーキー表示にする ───────────────────────────
+  // テキストを2連結して -50% までスライドさせ、切れ目なくループさせる
+  function setupMarquee() {
+    for (const el of document.querySelectorAll('.role-row-desc')) {
+      const inner = el.querySelector('.marquee-inner');
+      if (!inner) continue;
+      if (inner.scrollWidth <= el.clientWidth) continue;   // 収まっていれば流さない
+
+      const text = inner.textContent;
+      inner.textContent = text + '　　　' + text + '　　　';
+      const durSec = Math.max(6, inner.scrollWidth / 2 / 25);   // 25px/秒 目安
+      el.style.setProperty('--marquee-dur', durSec.toFixed(1) + 's');
+      el.classList.add('scrolling');
+    }
+  }
+
+  setupMarquee();
 </script>
 </body>
 </html>`;

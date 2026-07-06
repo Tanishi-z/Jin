@@ -76,7 +76,7 @@ export function buildLayout(data: DashboardData, isJa: boolean): string {
         <div class="role-row" style="--role-color: ${role.color}">
           <span class="role-dot"></span>
           <span class="role-row-name">${isJa ? `${role.nameJa} ${role.nameGlobal}` : `${role.nameGlobal} ${role.nameJa}`}</span>
-          <span class="role-row-desc">${isJa ? role.descJa : role.descEn}</span>
+          <span class="role-row-desc"><span class="marquee-inner">${isJa ? role.descJa : role.descEn}</span></span>
           <span class="role-row-count">${role.count}</span>
         </div>`).join('')}
       </div>
