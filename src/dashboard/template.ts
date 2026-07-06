@@ -31,16 +31,21 @@ ${buildConversationScript()}
 ${buildBoardScript()}
 
   // ── 1ページフィット（14インチ MacBook Pro 基準） ─────────────────────────────
-  // 画面がステージより大きければ拡大、小さければ等倍のままスクロール
+  // 画面の90%に収まるよう拡大縮小し、上下左右に5%ずつの余白を取って中央寄せする。
+  // 14インチ基準より小さい画面では 0.9 倍を下限としてスクロール表示になる。
   const STAGE_W = 1512;
   const STAGE_H = 852;
+  const FIT_RATIO = 0.9;
 
   function fitStage() {
     const stage = document.getElementById('stage');
     if (!stage) return;
-    const scale = Math.max(1, Math.min(window.innerWidth / STAGE_W, window.innerHeight / STAGE_H));
+    const scale = Math.max(
+      FIT_RATIO,
+      Math.min(window.innerWidth * FIT_RATIO / STAGE_W, window.innerHeight * FIT_RATIO / STAGE_H),
+    );
     stage.style.transform = 'scale(' + scale + ')';
-    // 拡大時は余白を等分して中央寄せする
+    // 余白を等分して中央寄せする
     const extraX = window.innerWidth  - STAGE_W * scale;
     const extraY = window.innerHeight - STAGE_H * scale;
     stage.style.marginLeft = (extraX > 0 ? extraX / 2 : 0) + 'px';
