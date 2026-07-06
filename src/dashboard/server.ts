@@ -5,8 +5,8 @@ import { buildHtml } from './template.js';
 import { subscribe } from './eventBus.js';
 import { listSessions, readSession } from '../activity/interactionWriter.js';
 
-// 既定ポート3001。他アプリと衝突する場合は JIN_DASHBOARD_PORT で変更できる
-const PORT = Number(process.env.JIN_DASHBOARD_PORT ?? 3001) || 3001;
+// 既定ポート3050。他アプリと衝突する場合は JIN_DASHBOARD_PORT で変更できる
+const PORT = Number(process.env.JIN_DASHBOARD_PORT ?? 3050) || 3050;
 
 function openBrowser(url: string): void {
   const cmd =
