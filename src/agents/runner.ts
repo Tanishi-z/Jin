@@ -348,7 +348,14 @@ function parseKinElicit(text: string): KinElicitResult {
 
   const message    = get('メッセージ') || get('message');
   const statusRaw  = get('状態')       || get('status');
-  const summary    = get('要件サマリー') || get('requirements summary');
+
+  // 要件定義の本文は内部に「## 概要」等の見出しを含むため、
+  // セクション分割ではなく見出し行以降の全文を取る
+  let summary = '';
+  const summaryHeading = text.match(/^##\s*(?:要件定義|要件サマリー|Requirements(?:\s+Summary)?)\s*$/im);
+  if (summaryHeading && summaryHeading.index !== undefined) {
+    summary = text.slice(summaryHeading.index + summaryHeading[0].length).trim();
+  }
 
   const isComplete = /complete/i.test(statusRaw);
 

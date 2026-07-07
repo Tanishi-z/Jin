@@ -20,8 +20,8 @@ export const ja = {
   requirementsDialog: {
     title:       '新規プロジェクト — 要件定義',
     kinLabel:    '金',
-    inputPrompt: '返答を入力してください',
-    skipHint:    '空白のまま Enter で現在の内容で進む',
+    inputPrompt: '返答を入力してください（空白のまま Enter でここまでの内容でまとめます）',
+    skipHint:    '空白のまま Enter で現在の内容で確定',
     confirm:     'この要件で進めますか？',
     confirmActions: {
       proceed: 'このまま進める',

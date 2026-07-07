@@ -20,8 +20,8 @@ export const global: Locale = {
   requirementsDialog: {
     title:       'New Project — Requirements',
     kinLabel:    'Kin',
-    inputPrompt: 'Your reply',
-    skipHint:    'Leave blank and press Enter to proceed with current requirements',
+    inputPrompt: 'Your reply (leave blank + Enter to finalize with current content)',
+    skipHint:    'Leave blank and press Enter to finalize',
     confirm:     'Proceed with these requirements?',
     confirmActions: {
       proceed: 'Proceed',

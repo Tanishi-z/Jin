@@ -13,30 +13,17 @@ import type { Mode, NextScreen } from '../types/index.js';
 const SPECS_DIR      = path.join(process.cwd(), '.jin', 'specs');
 const REQUIREMENTS_FILE = path.join(SPECS_DIR, 'requirements.md');
 
-/**
- * 対話フェーズラベル（進捗表示用）
- * Spec Kit の段階的確認フェーズに対応
- */
-const PHASE_LABELS_JA = [
-  '1. Discovery  — 概要・ユーザー・ロール',
-  '2. Stories    — ユーザーストーリー',
-  '3. Criteria   — 受け入れ条件（EARS 記法）',
-  '4. Constraints— 技術制約・非機能要件',
-];
-const PHASE_LABELS_EN = [
-  '1. Discovery   — Overview, users & roles',
-  '2. Stories     — User stories',
-  '3. Criteria    — Acceptance criteria (EARS)',
-  '4. Constraints — Tech stack & non-functional',
-];
+/** 質問の最大ターン数（これを超えたら強制的にまとめる） */
+const MAX_ELICIT_TURNS = 6;
 
-/** フェーズ推定（ターン数から大まかに割り当て） */
-function estimatePhase(turnIndex: number): number {
-  if (turnIndex <= 1) return 0;
-  if (turnIndex <= 3) return 1;
-  if (turnIndex <= 5) return 2;
-  return 3;
-}
+/** このターン以降は金に収束（完了優先）を指示する */
+const CONVERGE_AFTER_TURN = 2;
+
+/** 金へ収束を促す進行役指示（user ロールとして turns に注入する） */
+const CONVERGE_INSTRUCTION = {
+  ja: '（進行役より）質問はここまでにしてください。これまでの回答で要件定義を完成させ、不足している項目は妥当な前提で補って「## 前提（確認省略）」に明記した上で、complete で出力してください。',
+  en: '(Facilitator) Please stop asking questions now. Complete the requirements from the answers so far, fill any gaps with reasonable assumptions listed under "## Assumptions (not confirmed)", and output with status complete.',
+};
 
 /** デモ用のサンプル requirements.md */
 function buildDemoRequirements(mode: 'ja' | 'global'): string {
@@ -129,13 +116,12 @@ export async function requirementsDialog(mode: Mode): Promise<NextScreen> {
   const t       = getLocale(mode);
   const isJa    = mode === 'ja';
   const modeKey = isJa ? 'ja' : 'global' as const;
-  const phaseLabels = isJa ? PHASE_LABELS_JA : PHASE_LABELS_EN;
 
   console.log('');
   note(
     (isJa
-      ? `Kiro / Spec Kit 方式で要件を引き出します。\n${phaseLabels.join('\n')}`
-      : `Requirements will be elicited using the Kiro / Spec Kit approach.\n${phaseLabels.join('\n')}`),
+      ? '金との対話で要件をまとめます。プロジェクトの規模に応じて質問数は変わります。\n空白のまま Enter すると、いつでもここまでの内容で要件を確定できます。'
+      : 'Kin will gather requirements through a short dialog, scaled to your project size.\nPress Enter on an empty reply anytime to finalize with the current content.'),
     t.requirementsDialog.title,
   );
   console.log('');
@@ -154,15 +140,14 @@ export async function requirementsDialog(mode: Mode): Promise<NextScreen> {
   const turns: ElicitTurn[] = [];
 
   // ── 対話ループ ──
-  for (let i = 0; i < 10; i++) {
-    // フェーズ進捗を表示（3ターンごとに更新）
-    const phase = estimatePhase(i);
-    if (i > 0 && i % 2 === 0 && phase < phaseLabels.length) {
-      console.log(chalk.dim(`  ── ${phaseLabels[phase]} ──`));
-    }
+  for (let i = 0; i < MAX_ELICIT_TURNS; i++) {
+    // 一定ターンを超えたら金に収束（完了優先）を指示する（履歴には残さない）
+    const callTurns: ElicitTurn[] = i >= CONVERGE_AFTER_TURN
+      ? [...turns, { role: 'user', content: isJa ? CONVERGE_INSTRUCTION.ja : CONVERGE_INSTRUCTION.en }]
+      : turns;
 
     // 金の返答を取得
-    const result = await runKinElicit(turns, mode);
+    const result = await runKinElicit(callTurns, mode);
     // 対話ターンのトレースはセッション外なので破棄する（後続イベントへの混入防止）
     drainCalls();
 
@@ -174,9 +159,12 @@ export async function requirementsDialog(mode: Mode): Promise<NextScreen> {
     );
     console.log('');
 
-    // 要件が揃ったと判断 → 確認フローへ
+    // 要件が揃ったと判断 → 確認フローへ（サマリーが取れていなければまとめ直す）
     if (result.isComplete) {
-      return confirmRequirements(result.requirementsSummary, mode, t);
+      const summary = result.requirementsSummary.trim()
+        ? result.requirementsSummary
+        : await finalizeRequirements(turns, mode);
+      return confirmRequirements(summary, mode, t);
     }
 
     // ユーザーの返答を入力
@@ -184,7 +172,7 @@ export async function requirementsDialog(mode: Mode): Promise<NextScreen> {
       message: t.requirementsDialog.inputPrompt,
       placeholder: i === 0
         ? (isJa ? '例：管理者向けの社内ツールを作りたい' : 'e.g. An internal tool for admins')
-        : (isJa ? t.requirementsDialog.skipHint : t.requirementsDialog.skipHint),
+        : t.requirementsDialog.skipHint,
     });
 
     if (typeof userInput === 'symbol') {
@@ -192,25 +180,45 @@ export async function requirementsDialog(mode: Mode): Promise<NextScreen> {
       return { screen: 'requestTypeSelect' };
     }
 
-    // 空白 → 現時点の情報で強制完了
-    if (userInput.trim() === '') {
-      const summary = turns
-        .filter((t) => t.role === 'user')
-        .map((t) => t.content)
-        .join('\n\n');
-      return confirmRequirements(summary, mode, t);
+    // 空白（clack は空提出で undefined を返すことがある）→ 金にまとめさせて確定
+    const inputText = typeof userInput === 'string' ? userInput.trim() : '';
+    if (inputText === '') {
+      turns.push({ role: 'kin', content: result.message });
+      return confirmRequirements(await finalizeRequirements(turns, mode), mode, t);
     }
 
     turns.push({ role: 'kin',  content: result.message });
-    turns.push({ role: 'user', content: userInput.trim() });
+    turns.push({ role: 'user', content: inputText });
   }
 
-  // ターン上限 → 最後の金のメッセージで続けた分を使う
-  const summary = turns
+  // ターン上限 → 金にまとめさせて確定
+  return confirmRequirements(await finalizeRequirements(turns, mode), mode, t);
+}
+
+/**
+ * これまでの対話から金に要件定義を完成させる。
+ * LLM失敗時はユーザー発言の連結にフォールバックする。
+ */
+async function finalizeRequirements(turns: ElicitTurn[], mode: Mode): Promise<string> {
+  const isJa = mode === 'ja';
+  const finalTurns: ElicitTurn[] = [
+    ...turns,
+    { role: 'user', content: isJa ? CONVERGE_INSTRUCTION.ja : CONVERGE_INSTRUCTION.en },
+  ];
+
+  try {
+    const result = await runKinElicit(finalTurns, mode);
+    drainCalls();
+    if (result.isComplete && result.requirementsSummary.trim()) {
+      return result.requirementsSummary;
+    }
+  } catch { /* フォールバックへ */ }
+
+  // フォールバック: ユーザー発言をそのまま連結
+  return turns
     .filter((t) => t.role === 'user')
     .map((t) => t.content)
     .join('\n\n');
-  return confirmRequirements(summary, mode, t);
 }
 
 /** 要件定義の内容を確認して次の画面へ進む */
