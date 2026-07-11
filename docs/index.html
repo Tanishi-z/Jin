@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Claude Codeに通じるエージェント型開発を、完全ローカル環境で学び、試せるCLI。">
+  <meta name="theme-color" content="#0b0d0c">
+  <meta property="og:title" content="Jin — あなたの次の一手を、布陣で支える">
+  <meta property="og:description" content="ローカルLLMで学ぶ、将棋モチーフのエージェント型開発CLI。">
+  <meta property="og:type" content="website">
+  <title>Jin — ローカルLLMで学ぶエージェント型開発</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">本文へ移動</a>
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="Jin トップへ">
+      <span class="brand-mark">陣</span><span>Jin</span>
+    </a>
+    <nav aria-label="メインナビゲーション">
+      <a href="#concept">コンセプト</a>
+      <a href="#formation">布陣</a>
+      <a href="#start">はじめる</a>
+      <a class="nav-github" href="https://github.com/Tanishi-Zukka/Jin">GitHub ↗</a>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section class="hero" id="top">
+      <div class="hero-copy reveal">
+        <p class="eyebrow"><span></span> LOCAL LLM × MULTI-AGENT CLI</p>
+        <h1>あなたの次の一手を、<br><em>布陣</em>で支える。</h1>
+        <p class="lead">自然言語の要求を、将棋の駒になぞらえた専門エージェントが読み解く。Claude Codeに通じるエージェント型開発の仕組みを、完全ローカル環境で学び、試せるCLIです。</p>
+        <div class="hero-actions">
+          <a class="button primary" href="#start">Jinをはじめる <span>→</span></a>
+          <a class="button secondary" href="https://github.com/Tanishi-Zukka/Jin">ソースを見る ↗</a>
+        </div>
+        <ul class="hero-notes" aria-label="特徴">
+          <li>APIキー不要</li><li>クラウド送信なし</li><li>MIT License</li>
+        </ul>
+      </div>
+
+      <div class="terminal-wrap reveal" aria-label="Jin CLIの実行イメージ">
+        <div class="seal" aria-hidden="true">陣</div>
+        <div class="terminal">
+          <div class="terminal-bar"><i></i><i></i><i></i><span>jin — zsh</span></div>
+          <div class="terminal-body">
+            <pre><span class="dim">$</span> <strong>jin</strong>
+
+<span class="logo-1">     ██╗██╗███╗   ██╗</span>
+<span class="logo-2">     ██║██║████╗  ██║</span>
+<span class="logo-3">     ██║██║██╔██╗ ██║</span>
+<span class="logo-4">██   ██║██║██║╚██╗██║</span>
+<span class="logo-5">╚█████╔╝██║██║ ╚████║</span>
+<span class="logo-6"> ╚════╝ ╚═╝╚═╝  ╚═══╝</span>
+
+<span class="dim">あなたの次の一手を、布陣で支える</span>
+
+<span class="green">●</span> ローカルLLMを確認しました
+<span class="green">●</span> 金が要求を整理しています
+
+  <span class="piece">金</span> ── 下知 ──┬── <span class="piece">銀</span> UI / UX
+                 ├── <span class="piece">飛</span> 技術設計
+                 └── <span class="piece">角</span> 品質評価
+
+<span class="cursor">◆</span> 布陣が整いました</pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section concept" id="concept">
+      <div class="section-heading reveal">
+        <p class="eyebrow"><span></span> WHY JIN</p>
+        <h2>答えではなく、<br>考え方を学ぶ。</h2>
+      </div>
+      <div class="concept-copy reveal">
+        <p>Jinは、ひとつのモデルにすべてを任せません。要求整理、体験設計、技術設計、品質評価。それぞれの視点を持つ駒が協調し、金が全体を統合します。</p>
+        <p>2026年7月時点のClaude Codeに見られるエージェント、スキル、フック、プロジェクトコンテキストなどの概念を、学習・実験のために独自再構成しています。</p>
+      </div>
+      <div class="feature-grid">
+        <article class="feature reveal"><b>01</b><h3>完全ローカル</h3><p>Ollamaで動作。要求やコードを外部APIへ送信せず、自分の環境で試せます。</p></article>
+        <article class="feature reveal"><b>02</b><h3>役割で分ける</h3><p>7つの駒が専門領域を担当。複数視点による分析とレビューの流れを体験できます。</p></article>
+        <article class="feature reveal"><b>03</b><h3>仕組みを拡張</h3><p>エージェント、スキル、フックをファイルで定義し、自分の開発フローへ育てられます。</p></article>
+      </div>
+    </section>
+
+    <section class="section formation" id="formation">
+      <div class="section-heading centered reveal">
+        <p class="eyebrow"><span></span> THE FORMATION <span></span></p>
+        <h2>七つの視点が、<br>ひとつの構想を磨く。</h2>
+        <p>要求に応じて金が必要な駒を選び、分析・レビュー・実装へ進みます。</p>
+      </div>
+      <div class="pieces">
+        <article class="piece-card leader reveal"><div class="koma">金</div><div><small>KIN · ORCHESTRATOR</small><h3>金</h3><p>要求整理・布陣決定・全体統合</p></div></article>
+        <article class="piece-card reveal"><div class="koma">銀</div><div><small>GIN · EXPERIENCE</small><h3>銀</h3><p>UI / UX・ユーザー体験設計</p></div></article>
+        <article class="piece-card reveal"><div class="koma">飛</div><div><small>HISHA · ENGINEERING</small><h3>飛車</h3><p>技術実装・アーキテクチャ</p></div></article>
+        <article class="piece-card reveal"><div class="koma">角</div><div><small>KAKU · QUALITY</small><h3>角</h3><p>品質・リスク・テスト設計</p></div></article>
+        <article class="piece-card reveal"><div class="koma">桂</div><div><small>KEIMA · DATA</small><h3>桂馬</h3><p>データモデル・API・メトリクス</p></div></article>
+        <article class="piece-card reveal"><div class="koma">香</div><div><small>KYOSHA · SECURITY</small><h3>香車</h3><p>セキュリティ・認可・権限設計</p></div></article>
+        <article class="piece-card reveal"><div class="koma">歩</div><div><small>FU · DOCUMENTATION</small><h3>歩</h3><p>ドキュメント・タスク整理</p></div></article>
+      </div>
+    </section>
+
+    <section class="section workflow">
+      <div class="section-heading reveal"><p class="eyebrow"><span></span> HOW IT WORKS</p><h2>構想から実装まで。</h2></div>
+      <ol class="steps">
+        <li class="reveal"><span>一</span><div><small>REQUEST</small><h3>要求を伝える</h3><p>まだ曖昧なアイデアでも、自然な言葉で入力します。</p></div></li>
+        <li class="reveal"><span>二</span><div><small>FORMATION</small><h3>布陣を組む</h3><p>金が要求を読み、必要な専門エージェントを選びます。</p></div></li>
+        <li class="reveal"><span>三</span><div><small>REVIEW</small><h3>多角的に磨く</h3><p>各駒が分析し、金のレビューを通して提案を統合します。</p></div></li>
+        <li class="reveal"><span>四</span><div><small>IMPLEMENT</small><h3>確認して実装する</h3><p>成り駒がコードや文書を生成し、差分確認後に適用します。</p></div></li>
+      </ol>
+    </section>
+
+    <section class="section relation">
+      <div class="relation-box reveal">
+        <div><p class="eyebrow"><span></span> LEARNING TOOL</p><h2>Claude Codeの<br>代替ではありません。</h2></div>
+        <div><p>JinはAnthropicおよびClaude Codeの公式プロジェクトではなく、完全互換実装でもありません。エージェント型開発の考え方をローカルで観察し、手を動かして学ぶための実験環境です。</p><a href="https://github.com/Tanishi-Zukka/Jin#claude-codeとの関係">対応範囲をREADMEで確認する →</a></div>
+      </div>
+    </section>
+
+    <section class="section start" id="start">
+      <div class="start-copy reveal"><p class="eyebrow"><span></span> GET STARTED</p><h2>最初の一手を、<br>ここから。</h2><p>Node.js 24以上とOllamaがあれば始められます。</p></div>
+      <div class="install reveal">
+        <div class="code-row"><code>git clone https://github.com/Tanishi-Zukka/Jin.git</code><button data-copy="git clone https://github.com/Tanishi-Zukka/Jin.git" aria-label="クローンコマンドをコピー">COPY</button></div>
+        <div class="code-row"><code>cd Jin && npm install && npm run build</code><button data-copy="cd Jin && npm install && npm run build" aria-label="ビルドコマンドをコピー">COPY</button></div>
+        <div class="code-row accent"><code>npm install -g . && jin</code><button data-copy="npm install -g . && jin" aria-label="起動コマンドをコピー">COPY</button></div>
+        <p>UIだけ試すなら <code>jin --demo</code></p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <a class="brand" href="#top"><span class="brand-mark">陣</span><span>Jin</span></a>
+    <p>あなたの次の一手を、布陣で支える。</p>
+    <div><a href="https://github.com/Tanishi-Zukka/Jin">GitHub</a><a href="https://github.com/Tanishi-Zukka/Jin/blob/main/LICENSE">MIT License</a></div>
+    <small>© 2026 Tanishi-Zukka</small>
+  </footer>
+  <script src="./script.js"></script>
+</body>
+</html>
