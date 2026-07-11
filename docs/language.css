@@ -1,0 +1,10 @@
+.language-switch {
+  color: var(--gold2);
+  font-weight: 700;
+}
+
+@media (max-width: 900px) {
+  nav a.language-switch.language-switch {
+    display: inline;
+  }
+}

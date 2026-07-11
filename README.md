@@ -1,5 +1,7 @@
 # Jin
 
+[日本語](README.md) | [English](README.en.md)
+
 **Claude Codeに通じるエージェント型開発の仕組みを、完全ローカル環境で学び、試せるCLI**
 
 [紹介サイト](https://tanishi-zukka.github.io/Jin/) · [インストール](#インストール) · [Claude Codeとの関係](#claude-codeとの関係)

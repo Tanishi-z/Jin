@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Learn and experiment with agentic development concepts in a fully local CLI inspired by shogi formations.">
+  <meta name="theme-color" content="#0b0d0c">
+  <meta property="og:title" content="Jin — Your next move, backed by a formation">
+  <meta property="og:description" content="A shogi-inspired agentic development CLI powered by local LLMs.">
+  <meta property="og:type" content="website">
+  <title>Jin — Learn agentic development with local LLMs</title>
+  <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="./language.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="Jin home">
+      <span class="brand-mark">陣</span><span>Jin</span>
+    </a>
+    <nav aria-label="Main navigation">
+      <a href="#concept">Concept</a>
+      <a href="#formation">Formation</a>
+      <a href="#start">Get started</a>
+      <a class="language-switch" href="./index.html" lang="ja" hreflang="ja">日本語</a>
+      <a class="nav-github" href="https://github.com/Tanishi-Zukka/Jin">GitHub ↗</a>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section class="hero" id="top">
+      <div class="hero-copy reveal">
+        <p class="eyebrow"><span></span> LOCAL LLM × MULTI-AGENT CLI</p>
+        <h1>Your next move,<br>backed by a <em>formation</em>.</h1>
+        <p class="lead">Specialized agents modeled after shogi pieces interpret requirements written in natural language. Jin is a fully local CLI for learning and experimenting with the mechanics of agentic development found in tools such as Claude Code.</p>
+        <div class="hero-actions">
+          <a class="button primary" href="#start">Get started <span>→</span></a>
+          <a class="button secondary" href="https://github.com/Tanishi-Zukka/Jin">View source ↗</a>
+        </div>
+        <ul class="hero-notes" aria-label="Highlights">
+          <li>No API key</li><li>No cloud uploads</li><li>MIT License</li>
+        </ul>
+      </div>
+
+      <div class="terminal-wrap reveal" aria-label="Example Jin CLI session">
+        <div class="seal" aria-hidden="true">陣</div>
+        <div class="terminal">
+          <div class="terminal-bar"><i></i><i></i><i></i><span>jin — zsh</span></div>
+          <div class="terminal-body">
+            <pre><span class="dim">$</span> <strong>jin</strong>
+
+<span class="logo-1">     ██╗██╗███╗   ██╗</span>
+<span class="logo-2">     ██║██║████╗  ██║</span>
+<span class="logo-3">     ██║██║██╔██╗ ██║</span>
+<span class="logo-4">██   ██║██║██║╚██╗██║</span>
+<span class="logo-5">╚█████╔╝██║██║ ╚████║</span>
+<span class="logo-6"> ╚════╝ ╚═╝╚═╝  ╚═══╝</span>
+
+<span class="dim">Your next move, backed by a formation</span>
+
+<span class="green">●</span> Local LLM detected
+<span class="green">●</span> Kin is organizing the request
+
+  <span class="piece">Kin</span> ─ command ─┬── <span class="piece">Gin</span> UI / UX
+                    ├── <span class="piece">Hi</span>  Engineering
+                    └── <span class="piece">Ka</span>  Quality
+
+<span class="cursor">◆</span> Formation ready</pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section concept" id="concept">
+      <div class="section-heading reveal">
+        <p class="eyebrow"><span></span> WHY JIN</p>
+        <h2>Learn the process,<br>not just the answer.</h2>
+      </div>
+      <div class="concept-copy reveal">
+        <p>Jin does not leave everything to one model. Shogi-inspired agents contribute perspectives on requirements, experience, engineering, and quality, while Kin orchestrates the whole formation.</p>
+        <p>It independently reconstructs concepts seen in Claude Code as of July 2026—including agents, skills, hooks, and project context—for hands-on learning and experimentation.</p>
+      </div>
+      <div class="feature-grid">
+        <article class="feature reveal"><b>01</b><h3>Fully local</h3><p>Runs with Ollama. Try it in your own environment without sending requirements or code to an external API.</p></article>
+        <article class="feature reveal"><b>02</b><h3>Separated by role</h3><p>Seven pieces cover specialized domains, exposing a workflow built around multiple perspectives and review.</p></article>
+        <article class="feature reveal"><b>03</b><h3>Extensible mechanics</h3><p>Define agents, skills, and hooks as files, then evolve Jin around your own development workflow.</p></article>
+      </div>
+    </section>
+
+    <section class="section formation" id="formation">
+      <div class="section-heading centered reveal">
+        <p class="eyebrow"><span></span> THE FORMATION <span></span></p>
+        <h2>Seven perspectives<br>refine one vision.</h2>
+        <p>Kin chooses the pieces required by each request and guides them through analysis, review, and implementation.</p>
+      </div>
+      <div class="pieces">
+        <article class="piece-card leader reveal"><div class="koma">金</div><div><small>KIN · ORCHESTRATOR</small><h3>Kin</h3><p>Requirements, formation selection, and synthesis</p></div></article>
+        <article class="piece-card reveal"><div class="koma">銀</div><div><small>GIN · EXPERIENCE</small><h3>Gin</h3><p>UI / UX and user experience design</p></div></article>
+        <article class="piece-card reveal"><div class="koma">飛</div><div><small>HISHA · ENGINEERING</small><h3>Hisha</h3><p>Technical implementation and architecture</p></div></article>
+        <article class="piece-card reveal"><div class="koma">角</div><div><small>KAKU · QUALITY</small><h3>Kaku</h3><p>Quality, risk, and test design</p></div></article>
+        <article class="piece-card reveal"><div class="koma">桂</div><div><small>KEIMA · DATA</small><h3>Keima</h3><p>Data models, APIs, and metrics</p></div></article>
+        <article class="piece-card reveal"><div class="koma">香</div><div><small>KYOSHA · SECURITY</small><h3>Kyosha</h3><p>Security, authorization, and permissions</p></div></article>
+        <article class="piece-card reveal"><div class="koma">歩</div><div><small>FU · DOCUMENTATION</small><h3>Fu</h3><p>Documentation and task organization</p></div></article>
+      </div>
+    </section>
+
+    <section class="section workflow">
+      <div class="section-heading reveal"><p class="eyebrow"><span></span> HOW IT WORKS</p><h2>From vision to implementation.</h2></div>
+      <ol class="steps">
+        <li class="reveal"><span>一</span><div><small>REQUEST</small><h3>Describe the request</h3><p>Enter even a rough idea using natural language.</p></div></li>
+        <li class="reveal"><span>二</span><div><small>FORMATION</small><h3>Build the formation</h3><p>Kin reads the request and selects the specialists it needs.</p></div></li>
+        <li class="reveal"><span>三</span><div><small>REVIEW</small><h3>Refine from every angle</h3><p>Each piece analyzes the idea, and Kin reviews and combines their proposals.</p></div></li>
+        <li class="reveal"><span>四</span><div><small>IMPLEMENT</small><h3>Review and implement</h3><p>Promoted pieces generate code and documents for review before changes are applied.</p></div></li>
+      </ol>
+    </section>
+
+    <section class="section relation">
+      <div class="relation-box reveal">
+        <div><p class="eyebrow"><span></span> LEARNING TOOL</p><h2>Not a replacement<br>for Claude Code.</h2></div>
+        <div><p>Jin is neither an official Anthropic or Claude Code project nor a fully compatible implementation. It is an experimental environment for observing agentic development concepts locally and learning by building.</p><a href="https://github.com/Tanishi-Zukka/Jin/blob/main/README.en.md#relationship-to-claude-code">See the supported scope in the README →</a></div>
+      </div>
+    </section>
+
+    <section class="section start" id="start">
+      <div class="start-copy reveal"><p class="eyebrow"><span></span> GET STARTED</p><h2>Make your<br>first move.</h2><p>All you need is Node.js 24 or later and Ollama.</p></div>
+      <div class="install reveal">
+        <div class="code-row"><code>git clone https://github.com/Tanishi-Zukka/Jin.git</code><button data-copy="git clone https://github.com/Tanishi-Zukka/Jin.git" aria-label="Copy clone command">COPY</button></div>
+        <div class="code-row"><code>cd Jin && npm install && npm run build</code><button data-copy="cd Jin && npm install && npm run build" aria-label="Copy build command">COPY</button></div>
+        <div class="code-row accent"><code>npm install -g . && jin</code><button data-copy="npm install -g . && jin" aria-label="Copy launch command">COPY</button></div>
+        <p>To try only the UI, run <code>jin --demo</code></p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <a class="brand" href="#top"><span class="brand-mark">陣</span><span>Jin</span></a>
+    <p>Your next move, backed by a formation.</p>
+    <div><a href="https://github.com/Tanishi-Zukka/Jin">GitHub</a><a href="https://github.com/Tanishi-Zukka/Jin/blob/main/LICENSE">MIT License</a></div>
+    <small>© 2026 Tanishi-Zukka</small>
+  </footer>
+  <script src="./script.js"></script>
+</body>
+</html>
