@@ -2,16 +2,36 @@
   "name": "jin",
   "version": "0.1.0",
   "description": "自然言語の要求を、複数の役割が協調して仕様・体験・実装計画へ変換する対話型スペック駆動開発CLI",
+  "license": "MIT",
+  "author": "Tanishi-Zukka",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Tanishi-Zukka/Jin.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Tanishi-Zukka/Jin/issues"
+  },
+  "homepage": "https://github.com/Tanishi-Zukka/Jin#readme",
+  "keywords": [
+    "cli",
+    "ollama",
+    "local-llm",
+    "spec-driven-development",
+    "multi-agent"
+  ],
   "type": "module",
   "bin": {
     "jin": "./dist/index.js"
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
     "dev": "tsx src/index.ts",
     "build": "tsc && chmod +x dist/index.js",
+    "check": "tsc --noEmit",
     "prepare": "npm run build",
     "start": "node dist/index.js"
   },

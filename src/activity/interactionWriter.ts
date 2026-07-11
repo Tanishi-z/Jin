@@ -3,6 +3,7 @@ import path from 'path';
 import type { LlmCallRecord } from '../agents/callTrace.js';
 
 const LOGS_DIR = path.join(process.cwd(), '.jin', 'logs');
+const SESSION_ID_PATTERN = /^[\w\u3040-\u30ff\u4e00-\u9fff-]+$/;
 
 // ── 型定義 ────────────────────────────────────────────────────────────────────
 
@@ -85,6 +86,9 @@ let currentSessionId: string | null = null;
 
 /** セッションIDからファイルパスを生成 */
 function sessionPath(id: string): string {
+  if (!SESSION_ID_PATTERN.test(id)) {
+    throw new Error('Invalid session ID');
+  }
   fs.mkdirSync(LOGS_DIR, { recursive: true });
   return path.join(LOGS_DIR, `${id}.json`);
 }

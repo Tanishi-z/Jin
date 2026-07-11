@@ -7,6 +7,7 @@ import { listSessions, readSession } from '../activity/interactionWriter.js';
 
 // 既定ポート3050。他アプリと衝突する場合は JIN_DASHBOARD_PORT で変更できる
 const PORT = Number(process.env.JIN_DASHBOARD_PORT ?? 3050) || 3050;
+const HOST = '127.0.0.1';
 
 function openBrowser(url: string): void {
   const cmd =
@@ -28,7 +29,6 @@ export function startDashboard(): void {
         'Content-Type':  'text/event-stream',
         'Cache-Control': 'no-cache',
         'Connection':    'keep-alive',
-        'Access-Control-Allow-Origin': '*',
       });
 
       // 接続確認用の初期pingを送る
@@ -46,7 +46,6 @@ export function startDashboard(): void {
     if (url === '/api/logs') {
       res.writeHead(200, {
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
       });
       res.end(JSON.stringify(listSessions()));
       return;
@@ -63,7 +62,6 @@ export function startDashboard(): void {
       }
       res.writeHead(200, {
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
       });
       res.end(JSON.stringify(session));
       return;
@@ -75,7 +73,6 @@ export function startDashboard(): void {
         const data = readDashboardData();
         res.writeHead(200, {
           'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
         });
         res.end(JSON.stringify(data));
       } catch (err) {
@@ -101,6 +98,7 @@ export function startDashboard(): void {
     if (err.code === 'EADDRINUSE') openBrowser(`http://localhost:${PORT}`);
   });
 
-  server.listen(PORT, () => { openBrowser(`http://localhost:${PORT}`); });
+  // ログには要求やLLMプロンプトが含まれるため、外部インターフェースへ公開しない。
+  server.listen(PORT, HOST, () => { openBrowser(`http://localhost:${PORT}`); });
   server.unref();
 }

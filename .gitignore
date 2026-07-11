@@ -21,6 +21,7 @@ pnpm-debug.log*
 
 # local tool settings
 .claude/
+.jin/
 docs/internal/
 CLAUDE.md
 .vscode/
