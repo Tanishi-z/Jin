@@ -72,14 +72,10 @@ Jin does not provide equivalent support for MCP integrations, web search, genera
 ## Installation
 
 ```bash
-git clone https://github.com/Tanishi-Zukka/Jin.git
-cd Jin
-npm install
-npm run build
-
-# Optional: install globally
-npm install -g .
+npm install -g @tanishi-zukka/jin
 ```
+
+You can also run it without installing it using `npx @tanishi-zukka/jin`.
 
 Requirements:
 

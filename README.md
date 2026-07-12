@@ -79,19 +79,10 @@ Claude Codeが提供するMCP連携、Web検索、汎用的なターミナル操
 ## インストール
 
 ```bash
-# リポジトリをクローン
-git clone https://github.com/Tanishi-Zukka/Jin.git
-cd Jin
-
-# 依存パッケージをインストール
-npm install
-
-# ビルド
-npm run build
-
-# グローバルインストール（任意）
-npm install -g .
+npm install -g @tanishi-zukka/jin
 ```
+
+インストールせずに試す場合は `npx @tanishi-zukka/jin` でも起動できます。
 
 **動作要件**
 
