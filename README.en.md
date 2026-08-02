@@ -4,7 +4,7 @@
 
 **A fully local CLI for learning and experimenting with agentic development concepts found in tools such as Claude Code**
 
-[Website](https://tanishi-zukka.github.io/Jin/en.html) · [Installation](#installation) · [Relationship to Claude Code](#relationship-to-claude-code)
+[Website](https://tanishi-z.github.io/Jin/en.html) · [Installation](#installation) · [Relationship to Claude Code](#relationship-to-claude-code)
 
 ```text
      ██╗██╗███╗   ██╗
