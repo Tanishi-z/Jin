@@ -79,10 +79,10 @@ Claude Codeが提供するMCP連携、Web検索、汎用的なターミナル操
 ## インストール
 
 ```bash
-npm install -g @tanishi-zukka/jin
+npm install -g @tanishi-z/jin
 ```
 
-インストールせずに試す場合は `npx @tanishi-zukka/jin` でも起動できます。
+インストールせずに試す場合は `npx @tanishi-z/jin` でも起動できます。
 
 **動作要件**
 

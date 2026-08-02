@@ -72,10 +72,10 @@ Jin does not provide equivalent support for MCP integrations, web search, genera
 ## Installation
 
 ```bash
-npm install -g @tanishi-zukka/jin
+npm install -g @tanishi-z/jin
 ```
 
-You can also run it without installing it using `npx @tanishi-zukka/jin`.
+You can also run it without installing it using `npx @tanishi-z/jin`.
 
 Requirements:
 
