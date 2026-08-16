@@ -1,6 +1,6 @@
 {
   "name": "@tanishi-z/jin",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "自然言語の要求を、複数の役割が協調して仕様・体験・実装計画へ変換する対話型スペック駆動開発CLI",
   "license": "MIT",
   "author": "Tanishi-z",
