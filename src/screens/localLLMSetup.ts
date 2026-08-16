@@ -26,6 +26,16 @@ const STRENGTH_LABELS: Record<ModelStrength, { ja: string; en: string }> = {
   large:     { ja: '高品質・大型', en: 'Large & High-quality' },
 };
 
+/** ISO時刻から現在までの経過を「N分前」「N時間前」形式で表す */
+function relativeTime(iso: string | undefined, isJa: boolean): string {
+  if (!iso) return isJa ? '不明' : 'unknown';
+  const minutes = Math.floor((Date.now() - Date.parse(iso)) / 60000);
+  if (minutes < 1) return isJa ? 'たった今' : 'just now';
+  if (minutes < 60) return isJa ? `${minutes}分前` : `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  return isJa ? `${hours}時間前` : `${hours}h ago`;
+}
+
 /** 説明文をロケールに合わせて選び、指定長に切り詰める */
 function localizedDesc(description: string, isJa: boolean, max = 40): string {
   const parts = description.split(' / ');
@@ -86,15 +96,25 @@ export async function localLLMSetup(mode: Mode): Promise<NextScreen> {
   // ④ インストール済みモデルと推奨モデルを取得（ウェブから最新情報を試みる）
   const s3 = spinner();
   s3.start(isJa ? 'Ollama ライブラリから最新モデル情報を取得中...' : 'Fetching latest models from Ollama library...');
-  const [installed, { fromWeb, models: recommended }] = await Promise.all([
+  const [installed, { source, fetchedAt, models: recommended }] = await Promise.all([
     listInstalledModels(),
     fetchOllamaModels(specs),
   ]);
-  s3.stop(
-    fromWeb
-      ? (isJa ? 'ウェブから最新モデル情報を取得しました' : 'Fetched latest models from web')
-      : (isJa ? 'オフライン：組み込みリストを使用します' : 'Offline: using built-in model list'),
-  );
+  const sourceMessages: Record<typeof source, string> = {
+    web:          isJa ? 'ウェブから最新モデル情報を取得しました' : 'Fetched latest models from web',
+    cache:        isJa ? `キャッシュのモデル情報を使用します（${relativeTime(fetchedAt, isJa)}）` : `Using cached model list (${relativeTime(fetchedAt, isJa)})`,
+    'stale-cache': isJa ? 'オフライン：前回取得した情報を使用します' : 'Offline: using previously fetched list',
+    builtin:      isJa ? 'オフライン：組み込みリストを使用します' : 'Offline: using built-in model list',
+  };
+  s3.stop(sourceMessages[source]);
+  if (source === 'stale-cache' || source === 'builtin') {
+    note(
+      isJa
+        ? '最新のモデル情報を取得するには `jin model update` を実行してください。'
+        : 'Run `jin model update` to fetch the latest model information.',
+      isJa ? 'ヒント' : 'Tip',
+    );
+  }
 
   const installedNames = new Set(installed.map((m) => m.name));
 

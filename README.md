@@ -171,10 +171,23 @@ Jin はマシンスペック（RAM・GPU）を自動検出し、ollama.com の�
 | 強みグループ | 例 | 向いている駒 |
 |---|---|---|
 | コード特化 | `qwen2.5-coder`, `qwen3-coder` | 飛車・香車・角 |
-| 推論特化 | `qwen3.5`, `deepseek-r1` | 金・角 |
-| 軽量・高速 | `llama3.2:3b`, `phi4-mini` | 銀・歩 |
-| バランス | `llama3.1:8b`, `gemma3:12b` | 全駒の既定 |
+| 推論特化 | `qwen3.5`, `qwen3.6`, `qwen3.8` | 金・角 |
+| 軽量・高速 | `gemma4:e4b`, `granite4.1:3b` | 銀・歩 |
+| バランス | `gemma4:12b`, `qwen3.5:9b` | 全駒の既定 |
 | 高品質・大型 | 27B以上の大型モデル | 統合・レビュー |
+
+### モデル情報のキャッシュと更新
+
+取得したモデル情報は `~/.jin/model-cache.json` に24時間キャッシュされ、起動のたびに ollama.com へアクセスすることはありません。キャッシュが新しければ即座に一覧を表示し、期限切れの場合のみ再取得します。オフライン時は期限切れキャッシュ、それも無ければ内蔵リストにフォールバックします。
+
+最新のモデル情報を手動で取得したい場合は次のコマンドを実行してください。
+
+```bash
+jin model update          # キャッシュが新しければスキップ
+jin model update --force  # 強制的に再取得
+```
+
+内蔵の推奨リストは GitHub Actions の週次 cron で ollama.com から自動更新され、差分があればプルリクエストが作成されます。
 
 ### 駒ごとのモデル割り当て
 
@@ -208,7 +221,7 @@ id: security-reviewer       # ユニークなID
 name: セキュリティ審査官      # 表示名
 phase: analysis             # analysis | impl | review | summary
 roleId: kaku                # 対応する駒ID（この駒の代わりに動く）
-model: qwen3:8b             # 使用モデル（省略時はグローバル設定）
+model: qwen3.5:9b           # 使用モデル（省略時はグローバル設定）
 temperature: 0.2            # 推論温度 0〜1（省略時は 0.3）
 enabled: true               # false で無効化
 ---
@@ -369,10 +382,10 @@ jin hook init
 ```json
 {
   "mode": "ja",
-  "localModel": "qwen2.5:7b",
+  "localModel": "gemma4:12b",
   "roleModels": {
-    "hisha": "qwen2.5-coder:14b",
-    "kaku":  "qwen3:8b"
+    "hisha": "qwen3-coder:30b",
+    "kaku":  "qwen3.5:27b"
   },
   "activeAgents": {
     "kaku": "security-reviewer"
@@ -397,6 +410,8 @@ jin --demo           # デモモード
 jin agent init       # カスタムエージェントのサンプルを生成
 jin skill init       # スキルのサンプルを生成
 jin hook init        # hooks.json テンプレートを生成
+jin model update             # 最新モデル情報を取得（キャッシュが新しければスキップ）
+jin model update --force     # 強制的に再取得
 ```
 
 ---
@@ -438,7 +453,12 @@ src/
   screens/           # 各画面の実装
   system/
     ollama.ts        # Ollama セットアップ
-    ollamaRegistry.ts # Ollama ライブラリからモデル取得
+    ollamaScrape.ts  # ollama.com HTML パーサ（本体・CI共有）
+    ollamaRegistry.ts # モデル取得の公開API（キャッシュ→ウェブ→内蔵の順にフォールバック）
+    modelCatalog.ts  # RAM推定・強み分類・推奨リスト組み立て
+    modelCatalog.generated.ts # CI週次生成のモデルスナップショット（手編集禁止）
+    modelMeta.ts     # モデルの日本語説明・強み分類の上書き（手書き）
+    modelCache.ts    # ~/.jin/model-cache.json のTTLキャッシュ
     specs.ts         # マシンスペック検出
   activity/
     writer.ts        # activity.json 書き込み
@@ -449,6 +469,8 @@ src/
   types/index.ts     # 型定義
   config.ts          # 設定の読み書き
   cli.ts             # CLIエントリーポイント
+scripts/
+  updateModelCatalog.ts # modelCatalog.generated.ts を再生成するCIスクリプト
 ```
 
 ---

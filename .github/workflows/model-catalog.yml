@@ -1,0 +1,57 @@
+name: Update model catalog
+
+on:
+  schedule:
+    - cron: '0 3 * * 1' # 毎週月曜 03:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+concurrency:
+  group: model-catalog
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Update model catalog
+        run: npx tsx scripts/updateModelCatalog.ts
+
+      - name: Check types
+        run: npm run check
+
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: chore/model-catalog
+          title: 'chore: モデルカタログを更新'
+          commit-message: 'chore: モデルカタログを自動更新'
+          body: |
+            ollama.com の featured / 検索結果からモデルカタログを自動再生成しました。
+            日本語説明が必要な新モデルは `src/system/modelMeta.ts` に追記してください。
+
+      - name: Notify on failure
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh issue list --state open --search "モデルカタログの自動更新に失敗" --json number \
+            | grep -q '"number"' || gh issue create \
+              --title 'モデルカタログの自動更新に失敗しました（HTML構造の変更の可能性）' \
+              --body 'scripts/updateModelCatalog.ts が失敗しました。ollama.com のHTML構造が変わった可能性があります。ワークフローログのセレクタ名を確認してください。'

@@ -131,6 +131,7 @@ export interface ImplResult {
 /** 画面遷移の次の行き先 */
 export type NextScreen =
   | { screen: 'agentManager' }
+  | { screen: 'settingsMenu' }
   | { screen: 'localLLMSetup' }
   | { screen: 'roleModelAssign' }
   | { screen: 'requestTypeSelect' }

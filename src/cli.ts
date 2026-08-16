@@ -2,12 +2,16 @@ import { outro, note } from '@clack/prompts';
 import chalk from 'chalk';
 import fs from 'fs';
 import path from 'path';
+import { homedir } from 'os';
 import { printLogo } from './logo.js';
+import { fetchSearch, isUsableLocally } from './system/ollamaScrape.js';
+import { loadModelCache, saveModelCache, isFresh } from './system/modelCache.js';
 import { AGENT_TEMPLATES } from './agents/templates.js';
 import { SKILL_TEMPLATES } from './skills/templates.js';
 import { HOOKS_TEMPLATE } from './hooks/templates.js';
 import { modeSelect }        from './screens/modeSelect.js';
 import { agentSelect }       from './screens/agentSelect.js';
+import { settingsMenu }      from './screens/settingsMenu.js';
 import { localLLMSetup }     from './screens/localLLMSetup.js';
 import { roleModelAssign }   from './screens/roleModelAssign.js';
 import { requestTypeSelect }   from './screens/requestTypeSelect.js';
@@ -121,6 +125,56 @@ export async function hookInit(): Promise<void> {
   );
 }
 
+/** `jin model update` — ollama.com から最新モデル情報を取得しキャッシュを更新する */
+export async function modelUpdate(force: boolean): Promise<void> {
+  const cache = force ? null : loadModelCache();
+  if (cache && isFresh(cache)) {
+    note(
+      [
+        'キャッシュはまだ新しい（24時間以内）ため取得をスキップしました。',
+        '強制的に取得する場合は `jin model update --force` を実行してください。',
+      ].join('\n'),
+      'jin model update',
+    );
+    return;
+  }
+
+  console.log(chalk.dim('  ollama.com から最新モデル情報を取得しています...'));
+
+  const queries = [undefined, 'coder', 'reasoning', 'small'];
+  const results = await Promise.allSettled(queries.map((q) => fetchSearch(q)));
+
+  const merged = new Map<string, Awaited<ReturnType<typeof fetchSearch>>[number]>();
+  let anySucceeded = false;
+  for (const r of results) {
+    if (r.status !== 'fulfilled') continue;
+    anySucceeded = true;
+    for (const m of r.value) {
+      if (!merged.has(m.name)) merged.set(m.name, m);
+    }
+  }
+
+  if (!anySucceeded) {
+    note(
+      'ollama.com への接続に失敗しました。ネットワーク接続を確認してください。',
+      'jin model update',
+    );
+    return;
+  }
+
+  const models = [...merged.values()];
+  const localCount = models.filter(isUsableLocally).length;
+  saveModelCache(models, 'full');
+
+  note(
+    [
+      `取得 ${models.length} 件 / ローカル実行可 ${localCount} 件`,
+      `保存先: ${path.join(homedir(), '.jin', 'model-cache.json')}`,
+    ].join('\n'),
+    'jin model update',
+  );
+}
+
 export async function cli(options: CliOptions = {}): Promise<void> {
   const isDemo = options.demo ?? false;
 
@@ -175,6 +229,10 @@ export async function cli(options: CliOptions = {}): Promise<void> {
     switch (next.screen) {
       case 'agentManager':
         next = await agentManager(mode);
+        break;
+
+      case 'settingsMenu':
+        next = await settingsMenu(mode);
         break;
 
       case 'localLLMSetup':

@@ -26,7 +26,7 @@ export async function requestTypeSelect(mode: Mode): Promise<NextScreen> {
   if (typeof choice === 'symbol')         return { screen: 'exit' };
   if (choice === '__implement__')         return { screen: 'taskSelect' };
   if (choice === '__agent_manager__')     return { screen: 'agentManager' };
-  if (choice === '__settings__')          return { screen: 'localLLMSetup' };
+  if (choice === '__settings__')          return { screen: 'settingsMenu' };
 
   // 新規プロジェクトは金との対話で要件定義
   if (choice === 'new_project') return { screen: 'requirementsDialog' };

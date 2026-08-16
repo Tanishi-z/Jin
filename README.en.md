@@ -147,6 +147,17 @@ Jin combines detected hardware information with Ollama model metadata and recomm
 
 Use the settings menu to assign models per piece. Coding-focused models are useful for Hisha, while reasoning or quality-focused models can improve Kaku's reviews.
 
+### Model cache and updates
+
+Fetched model information is cached at `~/.jin/model-cache.json` for 24 hours, so Jin doesn't hit ollama.com on every startup. A fresh cache is shown immediately; an expired one triggers a refetch. When offline, Jin falls back to the stale cache, then to the bundled list.
+
+```bash
+jin model update          # skip if the cache is still fresh
+jin model update --force  # force a refetch
+```
+
+The bundled recommendation list itself is refreshed weekly by a GitHub Actions cron job that pulls from ollama.com and opens a pull request when there are changes.
+
 ## Custom agents (`.agent.md`)
 
 Generate samples for all seven pieces:
@@ -163,7 +174,7 @@ id: security-reviewer
 name: Security Reviewer
 phase: analysis
 roleId: kaku
-model: qwen3:8b
+model: qwen3.5:9b
 temperature: 0.2
 enabled: true
 ---
@@ -233,10 +244,10 @@ Global settings are stored in `~/.jin/config.json`:
 ```json
 {
   "mode": "global",
-  "localModel": "qwen2.5:7b",
+  "localModel": "gemma4:12b",
   "roleModels": {
-    "hisha": "qwen2.5-coder:14b",
-    "kaku": "qwen3:8b"
+    "hisha": "qwen3-coder:30b",
+    "kaku": "qwen3.5:27b"
   },
   "activeAgents": {
     "kaku": "security-reviewer"
@@ -254,6 +265,8 @@ jin --demo             # Demo mode
 jin agent init         # Generate custom-agent samples
 jin skill init         # Generate skill samples
 jin hook init          # Generate a hooks.json template
+jin model update              # Fetch latest model info (skips if cache is fresh)
+jin model update --force      # Force a refetch
 ```
 
 ## Project files

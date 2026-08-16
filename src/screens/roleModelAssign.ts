@@ -77,7 +77,7 @@ export async function roleModelAssign(mode: Mode): Promise<NextScreen> {
 
   // ── 現在の割り当てを表示 ──
   const summaryLines = buildSummaryLines(
-    ROLE_ORDER, config.roleModels ?? {}, defaultModel, installedNames,
+    ROLE_ORDER, config.roleModels ?? {}, defaultModel,
     promotedSuffix, isJa,
   );
   note(
@@ -152,7 +152,7 @@ async function applyRecommended(
 
   // おすすめを保存
   saveConfig({ roleModels: recommended });
-  showSaved(recommended, defaultModel, promotedSuffix, isJa, installed);
+  showSaved(recommended, defaultModel, promotedSuffix, isJa);
   return { screen: 'requestTypeSelect' };
 }
 
@@ -210,7 +210,7 @@ async function configureManualy(
   }
 
   saveConfig({ roleModels });
-  showSaved(roleModels, defaultModel, promotedSuffix, isJa, installed);
+  showSaved(roleModels, defaultModel, promotedSuffix, isJa);
   return { screen: 'requestTypeSelect' };
 }
 
@@ -220,9 +220,8 @@ function showSaved(
   defaultModel:   string,
   promotedSuffix: Partial<Record<RoleId, string>>,
   isJa:           boolean,
-  installed:      Array<{ name: string; size: number; sizeLabel: string }>,
 ): void {
-  const lines = buildSummaryLines(ROLE_ORDER, roleModels, defaultModel, [], promotedSuffix, isJa);
+  const lines = buildSummaryLines(ROLE_ORDER, roleModels, defaultModel, promotedSuffix, isJa);
   note(lines.join('\n'), isJa ? '設定を保存しました' : 'Settings saved');
 }
 
@@ -231,7 +230,6 @@ function buildSummaryLines(
   order:          RoleId[],
   roleModels:     Partial<Record<RoleId, string>>,
   defaultModel:   string,
-  _installedNames: string[],
   promotedSuffix: Partial<Record<RoleId, string>>,
   isJa:           boolean,
 ): string[] {
