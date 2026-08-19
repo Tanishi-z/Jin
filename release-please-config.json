@@ -1,0 +1,20 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "packages": {
+    ".": {
+      "release-type": "node",
+      "package-name": "@tanishi-z/jin",
+      "changelog-sections": [
+        { "type": "feat", "section": "機能追加" },
+        { "type": "fix", "section": "不具合修正" },
+        { "type": "perf", "section": "パフォーマンス改善" },
+        { "type": "chore", "hidden": true },
+        { "type": "docs", "hidden": true },
+        { "type": "refactor", "hidden": true },
+        { "type": "test", "hidden": true },
+        { "type": "ci", "hidden": true },
+        { "type": "style", "hidden": true }
+      ]
+    }
+  }
+}

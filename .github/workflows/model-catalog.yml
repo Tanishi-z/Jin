@@ -37,6 +37,7 @@ jobs:
         run: npm run check
 
       - name: Create pull request
+        id: cpr
         uses: peter-evans/create-pull-request@v7
         with:
           branch: chore/model-catalog
@@ -44,7 +45,15 @@ jobs:
           commit-message: 'chore: モデルカタログを自動更新'
           body: |
             ollama.com の featured / 検索結果からモデルカタログを自動再生成しました。
-            日本語説明が必要な新モデルは `src/system/modelMeta.ts` に追記してください。
+            日本語説明が必要な新モデルの一覧は本ワークフロー実行の Summary を参照してください（`src/system/modelMeta.ts` に追記）。
+
+      - name: Merge pull request
+        if: steps.cpr.outputs.pull-request-operation == 'created' || steps.cpr.outputs.pull-request-operation == 'updated'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh pr merge ${{ steps.cpr.outputs.pull-request-number }} --squash --delete-branch \
+            || gh pr merge ${{ steps.cpr.outputs.pull-request-number }} --merge --delete-branch
 
       - name: Notify on failure
         if: failure()

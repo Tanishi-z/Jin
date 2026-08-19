@@ -4,7 +4,8 @@ import fs from 'fs';
 import path from 'path';
 import { homedir } from 'os';
 import { printLogo } from './logo.js';
-import { fetchSearch, isUsableLocally } from './system/ollamaScrape.js';
+import { isUsableLocally } from './system/ollamaScrape.js';
+import { fetchMergedCatalog } from './system/catalogFetch.js';
 import { loadModelCache, saveModelCache, isFresh } from './system/modelCache.js';
 import { AGENT_TEMPLATES } from './agents/templates.js';
 import { SKILL_TEMPLATES } from './skills/templates.js';
@@ -141,20 +142,11 @@ export async function modelUpdate(force: boolean): Promise<void> {
 
   console.log(chalk.dim('  ollama.com から最新モデル情報を取得しています...'));
 
-  const queries = [undefined, 'coder', 'reasoning', 'small'];
-  const results = await Promise.allSettled(queries.map((q) => fetchSearch(q)));
-
-  const merged = new Map<string, Awaited<ReturnType<typeof fetchSearch>>[number]>();
-  let anySucceeded = false;
-  for (const r of results) {
-    if (r.status !== 'fulfilled') continue;
-    anySucceeded = true;
-    for (const m of r.value) {
-      if (!merged.has(m.name)) merged.set(m.name, m);
-    }
-  }
-
-  if (!anySucceeded) {
+  let models: Awaited<ReturnType<typeof fetchMergedCatalog>>['models'];
+  let complete: boolean;
+  try {
+    ({ models, complete } = await fetchMergedCatalog());
+  } catch {
     note(
       'ollama.com への接続に失敗しました。ネットワーク接続を確認してください。',
       'jin model update',
@@ -162,9 +154,8 @@ export async function modelUpdate(force: boolean): Promise<void> {
     return;
   }
 
-  const models = [...merged.values()];
   const localCount = models.filter(isUsableLocally).length;
-  saveModelCache(models, 'full');
+  saveModelCache(models, complete ? 'full' : 'partial');
 
   note(
     [

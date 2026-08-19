@@ -119,7 +119,7 @@ export async function fetchSearch(query?: string): Promise<ScrapedModel[]> {
 
   const res = await fetch(url, {
     signal: AbortSignal.timeout(6000),
-    headers: { 'User-Agent': 'jin-cli/0.1.1' },
+    headers: { 'User-Agent': 'jin-cli' },
   });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
 

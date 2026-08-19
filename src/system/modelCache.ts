@@ -6,13 +6,21 @@ import type { ScrapedModel } from './catalogTypes.js';
 const CONFIG_DIR = path.join(os.homedir(), '.jin');
 const CACHE_FILE = path.join(CONFIG_DIR, 'model-cache.json');
 
-/** キャッシュのスキーマバージョン。互換性を壊す変更をした場合はこの数値を上げる */
-const CACHE_VERSION = 1;
+/**
+ * キャッシュのスキーマバージョン。互換性を壊す変更をした場合はこの数値を上げる。
+ * v2: source の意味を変更（'featured' 単独取得を廃止し 'full'/'partial' に統一）したため、
+ * 旧バージョンのキャッシュは破棄させて再取得させる。
+ */
+const CACHE_VERSION = 2;
 
 /** キャッシュの有効期限（24時間） */
 export const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 
-export type ModelCacheSource = 'featured' | 'full';
+/**
+ * 'full': featured + 補完クエリ（coder/reasoning/small）が全て成功した完全な取得結果。
+ * 'partial': 一部クエリが失敗した不完全な取得結果（既存の 'full' キャッシュを上書きしない）。
+ */
+export type ModelCacheSource = 'full' | 'partial';
 
 export interface ModelCache {
   version:   number;

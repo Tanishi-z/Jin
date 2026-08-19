@@ -1,6 +1,6 @@
 import type { SystemSpecs, ModelRecommendation } from './specs.js';
 import { buildRecommendations, builtinRecommendations } from './modelCatalog.js';
-import { fetchSearch } from './ollamaScrape.js';
+import { fetchMergedCatalog } from './catalogFetch.js';
 import { loadModelCache, saveModelCache, isFresh } from './modelCache.js';
 import { isDemoMode } from '../demo/state.js';
 
@@ -25,8 +25,12 @@ export async function fetchOllamaModels(
   }
 
   try {
-    const scraped = await fetchSearch();
-    saveModelCache(scraped, 'featured');
+    const { models: scraped, complete } = await fetchMergedCatalog();
+    // 部分成功時は既存の 'full' キャッシュを 'partial' で上書きしない（劣化防止）。
+    // 取得結果自体は今回の表示にはそのまま使う。
+    if (complete || cache?.source !== 'full') {
+      saveModelCache(scraped, complete ? 'full' : 'partial');
+    }
     const models = buildRecommendations(scraped, specs);
     if (models.length === 0) throw new Error('RAM要件を満たすモデルがありません');
     return { source: 'web', models };

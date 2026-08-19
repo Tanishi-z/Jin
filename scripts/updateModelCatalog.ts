@@ -11,14 +11,13 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { fetchSearch, isUsableLocally } from '../src/system/ollamaScrape.js';
+import { isUsableLocally } from '../src/system/ollamaScrape.js';
+import { fetchMergedCatalog } from '../src/system/catalogFetch.js';
+import { MODEL_META } from '../src/system/modelMeta.js';
 import type { ScrapedModel } from '../src/system/catalogTypes.js';
 
 const __dirname  = path.dirname(fileURLToPath(import.meta.url));
 const OUT_FILE   = path.join(__dirname, '../src/system/modelCatalog.generated.ts');
-
-// featured だけではコード特化・軽量帯が痩せるため、検索クエリで補完する
-const SUPPLEMENT_QUERIES = ['coder', 'reasoning', 'small'];
 
 const MIN_TOTAL_MODELS = 15;
 const MIN_LOCAL_MODELS = 5;
@@ -26,20 +25,12 @@ const MIN_LOCAL_MODELS = 5;
 async function main(): Promise<void> {
   const dryRun = process.argv.includes('--dry-run');
 
-  const results = await Promise.all([
-    fetchSearch(),
-    ...SUPPLEMENT_QUERIES.map((q) => fetchSearch(q)),
-  ]);
-
-  // ベース名でマージ（featured を優先。先勝ち）
-  const merged = new Map<string, ScrapedModel>();
-  for (const list of results) {
-    for (const m of list) {
-      if (!merged.has(m.name)) merged.set(m.name, m);
-    }
+  const { models: merged, complete } = await fetchMergedCatalog();
+  if (!complete) {
+    console.warn('警告: 一部の検索クエリが失敗しました（結果が不完全な可能性があります）');
   }
 
-  const all = [...merged.values()].sort((a, b) => a.name.localeCompare(b.name));
+  const all = [...merged].sort((a, b) => a.name.localeCompare(b.name));
   const localCount = all.filter(isUsableLocally).length;
 
   console.log(`取得件数: ${all.length} 件（うちローカル実行可: ${localCount} 件）`);
@@ -52,6 +43,8 @@ async function main(): Promise<void> {
     process.exit(1);
   }
 
+  reportUnknownModels(all);
+
   const body = renderFile(all);
 
   if (dryRun) {
@@ -62,6 +55,42 @@ async function main(): Promise<void> {
 
   fs.writeFileSync(OUT_FILE, body, 'utf-8');
   console.log(`書き込み完了: ${OUT_FILE}`);
+}
+
+/**
+ * MODEL_META（src/system/modelMeta.ts、手書き専用ファイル）に日本語説明が
+ * 未登録のローカル実行可モデルを一覧し、標準出力と GITHUB_STEP_SUMMARY に書き出す。
+ * 自動マージ運用（.github/workflows/model-catalog.yml）でPR本文が読まれなくなる分の代替。
+ */
+function reportUnknownModels(models: ScrapedModel[]): void {
+  const unknown = models
+    .filter(isUsableLocally)
+    .filter((m) => !MODEL_META[m.name])
+    .map((m) => m.name);
+
+  if (unknown.length === 0) {
+    console.log('MODEL_META未登録のモデルはありません。');
+    return;
+  }
+
+  const lines = [
+    `MODEL_META未登録のモデル（${unknown.length} 件）— 日本語説明の追記を検討してください:`,
+    ...unknown.map((name) => `  - ${name}`),
+  ];
+  console.log(lines.join('\n'));
+
+  const summaryFile = process.env.GITHUB_STEP_SUMMARY;
+  if (summaryFile) {
+    const summary = [
+      '## MODEL_META 未登録モデル',
+      '',
+      `以下 ${unknown.length} 件は \`src/system/modelMeta.ts\` に日本語説明が未登録です（ヒューリスティックで代替表示されます）。`,
+      '',
+      ...unknown.map((name) => `- \`${name}\``),
+      '',
+    ].join('\n');
+    fs.appendFileSync(summaryFile, summary + '\n', 'utf-8');
+  }
 }
 
 function renderFile(models: ScrapedModel[]): string {
