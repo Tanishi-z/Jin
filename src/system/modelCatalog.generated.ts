@@ -3,7 +3,7 @@
  * GitHub Actions の週次 cron（.github/workflows/model-catalog.yml）が ollama.com の
  * featured + 検索結果から再生成し、差分があればPRを自動作成します。
  *
- * 生成日時: 2026-08-24T03:54:21.687Z
+ * 生成日時: 2026-08-31T09:23:14.370Z
  *
  * 日本語の説明・強み分類の上書きは src/system/modelMeta.ts に書いてください。
  */
@@ -16,7 +16,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [2,7],
     sizeTags: ["2b","7b"],
     capabilities: [],
-    pulls: "3.1M",
+    pulls: "3.2M",
     cloud: false,
   },
   {
@@ -43,7 +43,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [671],
     sizeTags: ["671b"],
     capabilities: [],
-    pulls: "221K",
+    pulls: "221.7K",
     cloud: false,
   },
   {
@@ -52,7 +52,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [111],
     sizeTags: ["111b"],
     capabilities: ["tools"],
-    pulls: "225.3K",
+    pulls: "226.4K",
     cloud: false,
   },
   {
@@ -61,7 +61,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [7],
     sizeTags: ["7b"],
     capabilities: ["tools"],
-    pulls: "306.1K",
+    pulls: "315.6K",
     cloud: false,
   },
   {
@@ -70,7 +70,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [1.5,14],
     sizeTags: ["1.5b","14b"],
     capabilities: [],
-    pulls: "944.6K",
+    pulls: "947.3K",
     cloud: false,
   },
   {
@@ -79,7 +79,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [1.3,6.7,33],
     sizeTags: ["1.3b","6.7b","33b"],
     capabilities: [],
-    pulls: "4.5M",
+    pulls: "4.6M",
     cloud: false,
   },
   {
@@ -97,7 +97,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [1.5,7,8,14,32,70,671],
     sizeTags: ["1.5b","7b","8b","14b","32b","70b","671b"],
     capabilities: ["tools","thinking"],
-    pulls: "91.8M",
+    pulls: "92.1M",
     cloud: false,
   },
   {
@@ -106,7 +106,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [236],
     sizeTags: ["236b"],
     capabilities: [],
-    pulls: "286.2K",
+    pulls: "287.3K",
     cloud: false,
   },
   {
@@ -115,7 +115,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [],
     sizeTags: [],
     capabilities: ["tools","thinking"],
-    pulls: "391.2K",
+    pulls: "410.3K",
     cloud: true,
   },
   {
@@ -124,7 +124,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [],
     sizeTags: [],
     capabilities: ["tools","thinking"],
-    pulls: "352.9K",
+    pulls: "368.3K",
     cloud: true,
   },
   {
@@ -133,7 +133,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [24],
     sizeTags: ["24b"],
     capabilities: ["vision","tools"],
-    pulls: "955.9K",
+    pulls: "971.6K",
     cloud: false,
   },
   {
@@ -151,7 +151,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [7,15],
     sizeTags: ["7b","15b"],
     capabilities: [],
-    pulls: "998.8K",
+    pulls: "1M",
     cloud: false,
   },
   {
@@ -160,7 +160,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [2.4,7.8,32],
     sizeTags: ["2.4b","7.8b","32b"],
     capabilities: [],
-    pulls: "761K",
+    pulls: "763.2K",
     cloud: false,
   },
   {
@@ -169,7 +169,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [0.27],
     sizeTags: ["270m"],
     capabilities: ["tools"],
-    pulls: "183.4K",
+    pulls: "185.7K",
     cloud: false,
   },
   {
@@ -178,7 +178,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [2,4,12,26,31],
     sizeTags: ["e2b","e4b","12b","26b","31b"],
     capabilities: ["vision","tools","thinking","audio"],
-    pulls: "23.2M",
+    pulls: "23.8M",
     cloud: true,
   },
   {
@@ -196,7 +196,25 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [],
     sizeTags: [],
     capabilities: ["tools","thinking"],
-    pulls: "327.9K",
+    pulls: "336.6K",
+    cloud: true,
+  },
+  {
+    name: "glm-5.3",
+    description: "Z.ai's flagship model and the most capable open-weights model for coding, with major gains on long-horizon agentic tasks.",
+    sizesB: [],
+    sizeTags: [],
+    capabilities: ["tools","thinking"],
+    pulls: "17.3K",
+    cloud: true,
+  },
+  {
+    name: "glm-5.3-flash",
+    description: "Z.ai's first natively multimodal model, approaching Claude Opus 4.8 on coding and agentic benchmarks with just 18B active parameters.",
+    sizesB: [],
+    sizeTags: [],
+    capabilities: ["vision","tools","thinking"],
+    pulls: "32.7K",
     cloud: true,
   },
   {
@@ -205,7 +223,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [20,120],
     sizeTags: ["20b","120b"],
     capabilities: ["tools","thinking"],
-    pulls: "12.1M",
+    pulls: "12.4M",
     cloud: true,
   },
   {
@@ -214,7 +232,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [20,120],
     sizeTags: ["20b","120b"],
     capabilities: ["tools","thinking"],
-    pulls: "152.4K",
+    pulls: "153.8K",
     cloud: false,
   },
   {
@@ -232,17 +250,17 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [3,8,30],
     sizeTags: ["3b","8b","30b"],
     capabilities: ["tools"],
-    pulls: "367.3K",
+    pulls: "390.1K",
     cloud: false,
   },
   {
-    name: "kimi-k2.6",
-    description: "Kimi K2.6 is an open-source, native multimodal agentic model that advances practical capabilities in long-horizon coding, coding-driven design, proactive autonomous execution, and swarm-based task orchestration.",
-    sizesB: [],
-    sizeTags: [],
-    capabilities: ["vision","tools","thinking"],
-    pulls: "444K",
-    cloud: true,
+    name: "granite4.2",
+    description: "IBM Granite Models are a family of enterprise-ready, open foundation models that support multilingual capabilities, coding, retrieval-augmented generation (RAG), tool use, thinking and structured JSON output. Released under Apache 2.0 license.",
+    sizesB: [3,8,30],
+    sizeTags: ["3b","8b","30b"],
+    capabilities: [],
+    pulls: "20.2K",
+    cloud: false,
   },
   {
     name: "kimi-k2.7-code",
@@ -250,26 +268,8 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [],
     sizeTags: [],
     capabilities: ["vision","tools","thinking"],
-    pulls: "223.1K",
+    pulls: "228.6K",
     cloud: true,
-  },
-  {
-    name: "kimi-k3",
-    description: "Kimi K3 is an open-weight, native multimodal agentic model and our most capable model to date.",
-    sizesB: [],
-    sizeTags: [],
-    capabilities: ["vision","tools","thinking"],
-    pulls: "51.1K",
-    cloud: true,
-  },
-  {
-    name: "laguna-s-2.1",
-    description: "Our most capable model to date, designed for long-horizon work. 70.2% on Terminal-Bench 2.1 at 118B-A8B.",
-    sizesB: [],
-    sizeTags: [],
-    capabilities: ["tools","thinking"],
-    pulls: "102.4K",
-    cloud: false,
   },
   {
     name: "llama3.2",
@@ -277,7 +277,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [1,3],
     sizeTags: ["1b","3b"],
     capabilities: ["tools"],
-    pulls: "81.1M",
+    pulls: "81.9M",
     cloud: false,
   },
   {
@@ -286,7 +286,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [11,90],
     sizeTags: ["11b","90b"],
     capabilities: ["vision"],
-    pulls: "5.1M",
+    pulls: "5.2M",
     cloud: false,
   },
   {
@@ -304,7 +304,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [3.8],
     sizeTags: ["3.8b"],
     capabilities: ["vision"],
-    pulls: "308K",
+    pulls: "310.1K",
     cloud: false,
   },
   {
@@ -322,7 +322,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [7,70],
     sizeTags: ["7b","70b"],
     capabilities: [],
-    pulls: "834.9K",
+    pulls: "848.7K",
     cloud: false,
   },
   {
@@ -340,7 +340,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [],
     sizeTags: [],
     capabilities: ["vision","tools","thinking"],
-    pulls: "465.3K",
+    pulls: "499.4K",
     cloud: true,
   },
   {
@@ -358,7 +358,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [128],
     sizeTags: ["128b"],
     capabilities: ["vision","tools","thinking"],
-    pulls: "350.8K",
+    pulls: "367.1K",
     cloud: false,
   },
   {
@@ -376,7 +376,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [24],
     sizeTags: ["24b"],
     capabilities: ["vision","tools"],
-    pulls: "780.7K",
+    pulls: "783.3K",
     cloud: false,
   },
   {
@@ -403,7 +403,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [30],
     sizeTags: ["30b"],
     capabilities: ["vision","tools","thinking"],
-    pulls: "159.8K",
+    pulls: "178.3K",
     cloud: false,
   },
   {
@@ -412,7 +412,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [],
     sizeTags: [],
     capabilities: ["tools","thinking"],
-    pulls: "56.5K",
+    pulls: "68.7K",
     cloud: true,
   },
   {
@@ -421,7 +421,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [30],
     sizeTags: ["30b"],
     capabilities: ["tools","thinking"],
-    pulls: "130.3K",
+    pulls: "142.7K",
     cloud: false,
   },
   {
@@ -430,7 +430,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [30],
     sizeTags: ["30b"],
     capabilities: ["tools","thinking"],
-    pulls: "143.3K",
+    pulls: "144.7K",
     cloud: false,
   },
   {
@@ -439,7 +439,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [4],
     sizeTags: ["4b"],
     capabilities: ["tools"],
-    pulls: "702.9K",
+    pulls: "706.2K",
     cloud: false,
   },
   {
@@ -448,7 +448,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [33],
     sizeTags: ["33b"],
     capabilities: ["vision","tools","thinking"],
-    pulls: "649.3K",
+    pulls: "653.2K",
     cloud: false,
   },
   {
@@ -457,7 +457,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [1.5,8],
     sizeTags: ["1.5b","8b"],
     capabilities: [],
-    pulls: "631.8K",
+    pulls: "636.4K",
     cloud: false,
   },
   {
@@ -475,7 +475,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [9,35],
     sizeTags: ["9b","35b"],
     capabilities: ["tools"],
-    pulls: "412.8K",
+    pulls: "437.3K",
     cloud: false,
   },
   {
@@ -484,7 +484,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [9,35,397],
     sizeTags: ["9b","35b","397b"],
     capabilities: ["vision"],
-    pulls: "26.9K",
+    pulls: "226.2K",
     cloud: false,
   },
   {
@@ -529,7 +529,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [0.5,1.5,3,7,14,32],
     sizeTags: ["0.5b","1.5b","3b","7b","14b","32b"],
     capabilities: ["tools"],
-    pulls: "20.6M",
+    pulls: "20.9M",
     cloud: false,
   },
   {
@@ -538,7 +538,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [30,480],
     sizeTags: ["30b","480b"],
     capabilities: ["tools"],
-    pulls: "8.6M",
+    pulls: "8.8M",
     cloud: false,
   },
   {
@@ -556,7 +556,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [27,35],
     sizeTags: ["27b","35b"],
     capabilities: ["vision","tools","thinking"],
-    pulls: "6.1M",
+    pulls: "6.3M",
     cloud: false,
   },
   {
@@ -565,7 +565,16 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [27],
     sizeTags: ["27b"],
     capabilities: ["vision","tools","thinking"],
-    pulls: "666.7K",
+    pulls: "1.2M",
+    cloud: false,
+  },
+  {
+    name: "qwen3.8-flash-next",
+    description: "This experimental preview of the architecture that will underpin Qwen4.",
+    sizesB: [],
+    sizeTags: [],
+    capabilities: ["vision","tools","thinking"],
+    pulls: "11.3K",
     cloud: false,
   },
   {
@@ -583,7 +592,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [1,8,20],
     sizeTags: ["1b","8b","20b"],
     capabilities: [],
-    pulls: "409.1K",
+    pulls: "411.1K",
     cloud: false,
   },
   {
@@ -592,7 +601,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [3],
     sizeTags: ["3b"],
     capabilities: [],
-    pulls: "256.3K",
+    pulls: "257.4K",
     cloud: false,
   },
   {
@@ -610,7 +619,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [7,15],
     sizeTags: ["7b","15b"],
     capabilities: [],
-    pulls: "1.5M",
+    pulls: "1.6M",
     cloud: false,
   },
   {
@@ -619,7 +628,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [7,13,70],
     sizeTags: ["7b","13b","70b"],
     capabilities: [],
-    pulls: "930.5K",
+    pulls: "936.2K",
     cloud: false,
   },
   {
@@ -637,7 +646,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [3],
     sizeTags: ["3b"],
     capabilities: [],
-    pulls: "527.7K",
+    pulls: "530.1K",
     cloud: false,
   },
   {
