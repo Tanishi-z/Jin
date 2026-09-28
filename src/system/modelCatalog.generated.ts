@@ -3,7 +3,7 @@
  * GitHub Actions の週次 cron（.github/workflows/model-catalog.yml）が ollama.com の
  * featured + 検索結果から再生成し、差分があればPRを自動作成します。
  *
- * 生成日時: 2026-09-21T08:37:26.696Z
+ * 生成日時: 2026-09-28T09:25:00.625Z
  *
  * 日本語の説明・強み分類の上書きは src/system/modelMeta.ts に書いてください。
  */
@@ -25,7 +25,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [7,13,34,70],
     sizeTags: ["7b","13b","34b","70b"],
     capabilities: [],
-    pulls: "6.3M",
+    pulls: "6.5M",
     cloud: false,
   },
   {
@@ -43,7 +43,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [671],
     sizeTags: ["671b"],
     capabilities: [],
-    pulls: "223.5K",
+    pulls: "224.3K",
     cloud: false,
   },
   {
@@ -52,7 +52,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [111],
     sizeTags: ["111b"],
     capabilities: ["tools"],
-    pulls: "229.7K",
+    pulls: "230.9K",
     cloud: false,
   },
   {
@@ -61,7 +61,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [7],
     sizeTags: ["7b"],
     capabilities: ["tools"],
-    pulls: "325K",
+    pulls: "328.1K",
     cloud: false,
   },
   {
@@ -70,7 +70,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [1.5,14],
     sizeTags: ["1.5b","14b"],
     capabilities: [],
-    pulls: "954.5K",
+    pulls: "957.2K",
     cloud: false,
   },
   {
@@ -79,7 +79,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [1.3,6.7,33],
     sizeTags: ["1.3b","6.7b","33b"],
     capabilities: [],
-    pulls: "4.6M",
+    pulls: "4.7M",
     cloud: false,
   },
   {
@@ -97,7 +97,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [1.5,7,8,14,32,70,671],
     sizeTags: ["1.5b","7b","8b","14b","32b","70b","671b"],
     capabilities: ["tools","thinking"],
-    pulls: "93M",
+    pulls: "93.2M",
     cloud: false,
   },
   {
@@ -106,17 +106,8 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [236],
     sizeTags: ["236b"],
     capabilities: [],
-    pulls: "290.8K",
+    pulls: "292.2K",
     cloud: false,
-  },
-  {
-    name: "deepseek-v4-flash",
-    description: "DeepSeek-V4-Flash is the official release of DeepSeek-V4-Flash, built for efficient reasoning across a 1M-token context window, outperforming DeepSeek-V4-Pro (Preview).",
-    sizesB: [],
-    sizeTags: [],
-    capabilities: ["tools","thinking"],
-    pulls: "466.9K",
-    cloud: true,
   },
   {
     name: "deepseek-v4-pro",
@@ -124,7 +115,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [],
     sizeTags: [],
     capabilities: ["tools","thinking"],
-    pulls: "415.4K",
+    pulls: "428.1K",
     cloud: true,
   },
   {
@@ -133,7 +124,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [],
     sizeTags: [],
     capabilities: ["vision","tools","thinking"],
-    pulls: "41.2K",
+    pulls: "55K",
     cloud: true,
   },
   {
@@ -142,7 +133,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [24],
     sizeTags: ["24b"],
     capabilities: ["vision","tools"],
-    pulls: "1.2M",
+    pulls: "1.3M",
     cloud: false,
   },
   {
@@ -169,7 +160,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [2.4,7.8,32],
     sizeTags: ["2.4b","7.8b","32b"],
     capabilities: [],
-    pulls: "769.8K",
+    pulls: "772.6K",
     cloud: false,
   },
   {
@@ -178,7 +169,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [0.27],
     sizeTags: ["270m"],
     capabilities: ["tools"],
-    pulls: "190.5K",
+    pulls: "193K",
     cloud: false,
   },
   {
@@ -187,16 +178,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [2,4,12,26,31],
     sizeTags: ["e2b","e4b","12b","26b","31b"],
     capabilities: ["vision","tools","thinking","audio"],
-    pulls: "25.4M",
-    cloud: true,
-  },
-  {
-    name: "glm-5.1",
-    description: "GLM-5.1 is our next-generation flagship model for agentic engineering, with significantly stronger coding capabilities than its predecessor. It achieves state-of-the-art performance on SWE-Bench Pro and leads GLM-5 by a wide margin.",
-    sizesB: [],
-    sizeTags: [],
-    capabilities: ["tools","thinking"],
-    pulls: "2.3M",
+    pulls: "25.9M",
     cloud: true,
   },
   {
@@ -205,7 +187,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [],
     sizeTags: [],
     capabilities: ["tools","thinking"],
-    pulls: "346.9K",
+    pulls: "358.3K",
     cloud: true,
   },
   {
@@ -214,7 +196,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [],
     sizeTags: [],
     capabilities: ["tools","thinking"],
-    pulls: "55.3K",
+    pulls: "62.7K",
     cloud: true,
   },
   {
@@ -223,7 +205,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [],
     sizeTags: [],
     capabilities: ["vision","tools","thinking"],
-    pulls: "146.2K",
+    pulls: "155.7K",
     cloud: true,
   },
   {
@@ -232,7 +214,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [20,120],
     sizeTags: ["20b","120b"],
     capabilities: ["tools","thinking"],
-    pulls: "13M",
+    pulls: "13.3M",
     cloud: true,
   },
   {
@@ -241,7 +223,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [20,120],
     sizeTags: ["20b","120b"],
     capabilities: ["tools","thinking"],
-    pulls: "157K",
+    pulls: "158.7K",
     cloud: false,
   },
   {
@@ -259,7 +241,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [3,8,30],
     sizeTags: ["3b","8b","30b"],
     capabilities: ["tools"],
-    pulls: "456.9K",
+    pulls: "481.9K",
     cloud: false,
   },
   {
@@ -268,7 +250,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [3,8,30],
     sizeTags: ["3b","8b","30b"],
     capabilities: [],
-    pulls: "74.8K",
+    pulls: "92.6K",
     cloud: false,
   },
   {
@@ -277,8 +259,17 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [],
     sizeTags: [],
     capabilities: ["vision","tools","thinking"],
-    pulls: "240.5K",
+    pulls: "243.9K",
     cloud: true,
+  },
+  {
+    name: "laguna-s-2.1",
+    description: "Our most capable model to date, designed for long-horizon work. 70.2% on Terminal-Bench 2.1 at 118B-A8B.",
+    sizesB: [],
+    sizeTags: [],
+    capabilities: ["tools","thinking"],
+    pulls: "167.1K",
+    cloud: false,
   },
   {
     name: "llama3.2",
@@ -286,7 +277,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [1,3],
     sizeTags: ["1b","3b"],
     capabilities: ["tools"],
-    pulls: "83.9M",
+    pulls: "84.5M",
     cloud: false,
   },
   {
@@ -295,7 +286,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [11,90],
     sizeTags: ["11b","90b"],
     capabilities: ["vision"],
-    pulls: "5.3M",
+    pulls: "5.4M",
     cloud: false,
   },
   {
@@ -304,7 +295,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [70],
     sizeTags: ["70b"],
     capabilities: ["tools"],
-    pulls: "4.1M",
+    pulls: "4.2M",
     cloud: false,
   },
   {
@@ -313,7 +304,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [3.8],
     sizeTags: ["3.8b"],
     capabilities: ["vision"],
-    pulls: "381.1K",
+    pulls: "451.2K",
     cloud: false,
   },
   {
@@ -326,12 +317,21 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     cloud: false,
   },
   {
+    name: "medgemma",
+    description: "MedGemma is a collection of Gemma 3 variants that are trained for performance on medical text and image comprehension.",
+    sizesB: [4,27],
+    sizeTags: ["4b","27b"],
+    capabilities: ["vision"],
+    pulls: "431.2K",
+    cloud: false,
+  },
+  {
     name: "meditron",
     description: "Open-source medical large language model adapted from Llama 2 to the medical domain.",
     sizesB: [7,70],
     sizeTags: ["7b","70b"],
     capabilities: [],
-    pulls: "888.9K",
+    pulls: "902.9K",
     cloud: false,
   },
   {
@@ -340,7 +340,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [],
     sizeTags: [],
     capabilities: ["vision","tools","thinking"],
-    pulls: "512.7K",
+    pulls: "516.5K",
     cloud: true,
   },
   {
@@ -358,7 +358,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [128],
     sizeTags: ["128b"],
     capabilities: ["vision","tools","thinking"],
-    pulls: "406.2K",
+    pulls: "418.2K",
     cloud: false,
   },
   {
@@ -376,7 +376,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [24],
     sizeTags: ["24b"],
     capabilities: ["vision","tools"],
-    pulls: "790.7K",
+    pulls: "793K",
     cloud: false,
   },
   {
@@ -403,7 +403,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [30],
     sizeTags: ["30b"],
     capabilities: ["vision","tools","thinking"],
-    pulls: "221.8K",
+    pulls: "237.7K",
     cloud: false,
   },
   {
@@ -412,7 +412,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [],
     sizeTags: [],
     capabilities: ["tools","thinking"],
-    pulls: "100.7K",
+    pulls: "108.8K",
     cloud: true,
   },
   {
@@ -421,7 +421,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [30],
     sizeTags: ["30b"],
     capabilities: ["tools","thinking"],
-    pulls: "176.6K",
+    pulls: "188.9K",
     cloud: false,
   },
   {
@@ -430,7 +430,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [30],
     sizeTags: ["30b"],
     capabilities: ["tools","thinking"],
-    pulls: "148.4K",
+    pulls: "149.8K",
     cloud: false,
   },
   {
@@ -439,7 +439,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [4],
     sizeTags: ["4b"],
     capabilities: ["tools"],
-    pulls: "716.2K",
+    pulls: "719.8K",
     cloud: false,
   },
   {
@@ -448,7 +448,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [33],
     sizeTags: ["33b"],
     capabilities: ["vision","tools","thinking"],
-    pulls: "664.5K",
+    pulls: "669.9K",
     cloud: false,
   },
   {
@@ -457,7 +457,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [1.5,8],
     sizeTags: ["1.5b","8b"],
     capabilities: [],
-    pulls: "650.3K",
+    pulls: "655.3K",
     cloud: false,
   },
   {
@@ -475,7 +475,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [9,35],
     sizeTags: ["9b","35b"],
     capabilities: ["tools"],
-    pulls: "515.6K",
+    pulls: "537.9K",
     cloud: false,
   },
   {
@@ -484,7 +484,16 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [9,35,397],
     sizeTags: ["9b","35b","397b"],
     capabilities: ["vision"],
-    pulls: "331.9K",
+    pulls: "351.4K",
+    cloud: false,
+  },
+  {
+    name: "phi",
+    description: "Phi-2: a 2.7B language model by Microsoft Research that demonstrates outstanding reasoning and language understanding capabilities.",
+    sizesB: [2.7],
+    sizeTags: ["2.7b"],
+    capabilities: [],
+    pulls: "1.5M",
     cloud: false,
   },
   {
@@ -520,7 +529,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [0.5,1.5,3,7,14,32],
     sizeTags: ["0.5b","1.5b","3b","7b","14b","32b"],
     capabilities: ["tools"],
-    pulls: "21.6M",
+    pulls: "21.9M",
     cloud: false,
   },
   {
@@ -529,7 +538,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [30,480],
     sizeTags: ["30b","480b"],
     capabilities: ["tools"],
-    pulls: "9.4M",
+    pulls: "9.6M",
     cloud: false,
   },
   {
@@ -547,7 +556,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [27,35],
     sizeTags: ["27b","35b"],
     capabilities: ["vision","tools","thinking"],
-    pulls: "6.7M",
+    pulls: "6.8M",
     cloud: false,
   },
   {
@@ -556,7 +565,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [27],
     sizeTags: ["27b"],
     capabilities: ["vision","tools","thinking"],
-    pulls: "2.3M",
+    pulls: "2.7M",
     cloud: false,
   },
   {
@@ -565,7 +574,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [],
     sizeTags: [],
     capabilities: ["vision","tools","thinking"],
-    pulls: "110.6K",
+    pulls: "157.3K",
     cloud: false,
   },
   {
@@ -583,7 +592,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [1,8,20],
     sizeTags: ["1b","8b","20b"],
     capabilities: [],
-    pulls: "417.2K",
+    pulls: "420K",
     cloud: false,
   },
   {
@@ -592,7 +601,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [3],
     sizeTags: ["3b"],
     capabilities: [],
-    pulls: "260.8K",
+    pulls: "262.2K",
     cloud: false,
   },
   {
@@ -610,7 +619,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [7,15],
     sizeTags: ["7b","15b"],
     capabilities: [],
-    pulls: "1.8M",
+    pulls: "1.9M",
     cloud: false,
   },
   {
@@ -619,7 +628,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [7,13,70],
     sizeTags: ["7b","13b","70b"],
     capabilities: [],
-    pulls: "954.3K",
+    pulls: "961.2K",
     cloud: false,
   },
   {
@@ -637,7 +646,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [3],
     sizeTags: ["3b"],
     capabilities: [],
-    pulls: "537.1K",
+    pulls: "539.8K",
     cloud: false,
   },
   {
@@ -646,7 +655,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [1,3,7,15],
     sizeTags: ["1b","3b","7b","15b"],
     capabilities: [],
-    pulls: "1.3M",
+    pulls: "1.4M",
     cloud: false,
   },
   {
