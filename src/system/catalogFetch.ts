@@ -25,9 +25,11 @@ export async function fetchMergedCatalog(): Promise<MergedCatalog> {
   const merged = new Map<string, ScrapedModel>();
   let anySucceeded = false;
   let allSucceeded = true;
+  let firstError: unknown;
   for (const r of results) {
     if (r.status !== 'fulfilled') {
       allSucceeded = false;
+      firstError ??= r.reason;
       continue;
     }
     anySucceeded = true;
@@ -37,7 +39,9 @@ export async function fetchMergedCatalog(): Promise<MergedCatalog> {
   }
 
   if (!anySucceeded) {
-    throw new Error('ollama.com への接続にすべて失敗しました');
+    // 接続失敗とHTML構造変化を区別できるよう、最初の失敗理由を含める
+    const reason = firstError instanceof Error ? firstError.message : String(firstError);
+    throw new Error(`ollama.com からの取得にすべて失敗しました: ${reason}`);
   }
 
   return { models: [...merged.values()], complete: allSucceeded };
