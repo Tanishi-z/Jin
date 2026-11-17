@@ -3,7 +3,7 @@
  * GitHub Actions の週次 cron（.github/workflows/model-catalog.yml）が ollama.com の
  * featured + 検索結果から再生成し、差分があればPRを自動作成します。
  *
- * 生成日時: 2026-11-17T08:03:42.050Z
+ * 生成日時: 2026-11-17T08:09:04.792Z
  *
  * 日本語の説明・強み分類の上書きは src/system/modelMeta.ts に書いてください。
  */
@@ -16,7 +16,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [9,35],
     sizeTags: ["9b","35b"],
     capabilities: ["vision","decision"],
-    pulls: "51.2K",
+    pulls: "51.3K",
     cloud: false,
   },
   {
@@ -34,7 +34,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [2,4,9,27],
     sizeTags: ["2b","4b","9b","27b"],
     capabilities: ["vision","tools","thinking"],
-    pulls: "183.5K",
+    pulls: "183.6K",
     cloud: false,
   },
   {
@@ -97,7 +97,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [2,4,9,27],
     sizeTags: ["2b","4b","9b","27b"],
     capabilities: ["vision","decision"],
-    pulls: "102.8K",
+    pulls: "102.9K",
     cloud: false,
   },
   {
@@ -277,7 +277,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [1.7],
     sizeTags: ["1.7b"],
     capabilities: ["tools","thinking"],
-    pulls: "96.6K",
+    pulls: "96.7K",
     cloud: false,
   },
   {
@@ -286,7 +286,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [2],
     sizeTags: ["2b"],
     capabilities: ["vision","tools","audio"],
-    pulls: "46.5K",
+    pulls: "46.6K",
     cloud: false,
   },
   {
@@ -403,7 +403,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [24],
     sizeTags: ["24b"],
     capabilities: ["vision","tools"],
-    pulls: "936.1K",
+    pulls: "936.2K",
     cloud: false,
   },
   {
@@ -448,7 +448,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [30],
     sizeTags: ["30b"],
     capabilities: ["tools","thinking"],
-    pulls: "905.3K",
+    pulls: "905.4K",
     cloud: false,
   },
   {
@@ -520,7 +520,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [],
     sizeTags: [],
     capabilities: [],
-    pulls: "155.6K",
+    pulls: "155.7K",
     cloud: false,
   },
   {
@@ -592,7 +592,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [65],
     sizeTags: ["65b"],
     capabilities: ["tools","thinking"],
-    pulls: "57K",
+    pulls: "57.1K",
     cloud: false,
   },
   {
@@ -655,7 +655,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [3],
     sizeTags: ["3b"],
     capabilities: [],
-    pulls: "565.9K",
+    pulls: "566K",
     cloud: false,
   },
   {
