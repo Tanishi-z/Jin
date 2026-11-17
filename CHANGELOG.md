@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.1](https://github.com/Tanishi-z/Jin/compare/jin-v0.3.0...jin-v0.3.1) (2026-11-17)
+
+
+### 不具合修正
+
+* ollama.com のリデザインに合わせてカタログのパーサを更新 ([f00c0d9](https://github.com/Tanishi-z/Jin/commit/f00c0d962d14128792c524226beaaac4b6f96c88))
+* ollama.com のリデザインに合わせてカタログのパーサを更新し、失敗理由をエラーに含める ([7a3e995](https://github.com/Tanishi-z/Jin/commit/7a3e995b012e6c29e03247bbac375d2861793d3b))
+
 ## [0.3.0](https://github.com/Tanishi-z/Jin/compare/jin-v0.2.0...jin-v0.3.0) (2026-08-19)
 
 
