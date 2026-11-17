@@ -50,7 +50,7 @@ export function assertHtmlShape(html: string): void {
   const checks: Array<[string, RegExp]> = [
     ['サイズタグ (bg-[#ddf4ff])', /bg-\[#ddf4ff\]/],
     ['能力タグ (bg-indigo-50)', /bg-indigo-50/],
-    ['Pullsラベル (&nbsp;Pulls)', /&nbsp;Pulls/],
+    ['モデル一覧項目 (border-line の <li>)', /<li\s+class="[^"]*border-line[^"]*">/],
   ];
   const missing = checks.filter(([, re]) => !re.test(html)).map(([label]) => label);
   if (missing.length > 0) {
@@ -65,16 +65,16 @@ export function assertHtmlShape(html: string): void {
 export function parseSearchHtml(html: string): ScrapedModel[] {
   assertHtmlShape(html);
 
-  const chunks = html.split(/<li\s+class="flex items-baseline border-b border-neutral-200 py-6">/).slice(1);
+  const chunks = html.split(/<li\s+class="border-t-\[0\.5px\] border-line first:border-t-0">/).slice(1);
   const models: ScrapedModel[] = [];
 
   for (const chunk of chunks) {
     // ユーザー名前空間モデル（/JXW67/TGAI_NB 等）は /library/ を持たないため除外
-    const name = chunk.match(/href="\/library\/([a-z0-9._-]+)" class="group w-full"/)?.[1];
+    const name = chunk.match(/href="\/library\/([a-z0-9._-]+)" class="group /)?.[1];
     if (!name) continue;
 
     const description = decodeEntities(
-      chunk.match(/<p class="max-w-lg break-words[^"]*">\s*([^<]*?)\s*<\/p>/)?.[1] ?? '',
+      chunk.match(/<p class="[^"]*line-clamp-2[^"]*">\s*([^<]*?)\s*<\/p>/)?.[1] ?? '',
     );
 
     // サイズタグ: 必ずクラス bg-[#ddf4ff] で特定する。
@@ -98,7 +98,7 @@ export function parseSearchHtml(html: string): ScrapedModel[] {
 
     const cloud = /<span[^>]*bg-cyan-50[^>]*>\s*cloud\s*<\/span>/.test(chunk);
 
-    const pulls = chunk.match(/<span\s*>\s*([^<]+?)\s*<\/span>\s*<span class="hidden sm:flex">&nbsp;Pulls<\/span>/)?.[1] ?? '';
+    const pulls = chunk.match(/title="[\d,]+ downloads"[\s\S]*?<\/svg><span\s*>\s*([^<]+?)\s*<\/span>/)?.[1] ?? '';
 
     models.push({ name, description, sizesB: sortedSizes, sizeTags: sortedTags, capabilities, pulls, cloud });
   }
