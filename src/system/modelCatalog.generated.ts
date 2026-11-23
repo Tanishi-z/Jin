@@ -3,7 +3,7 @@
  * GitHub Actions の週次 cron（.github/workflows/model-catalog.yml）が ollama.com の
  * featured + 検索結果から再生成し、差分があればPRを自動作成します。
  *
- * 生成日時: 2026-11-17T08:09:04.792Z
+ * 生成日時: 2026-11-23T11:52:31.237Z
  *
  * 日本語の説明・強み分類の上書きは src/system/modelMeta.ts に書いてください。
  */
@@ -16,7 +16,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [9,35],
     sizeTags: ["9b","35b"],
     capabilities: ["vision","decision"],
-    pulls: "51.3K",
+    pulls: "70.7K",
     cloud: false,
   },
   {
@@ -34,7 +34,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [2,4,9,27],
     sizeTags: ["2b","4b","9b","27b"],
     capabilities: ["vision","tools","thinking"],
-    pulls: "183.6K",
+    pulls: "210.2K",
     cloud: false,
   },
   {
@@ -43,7 +43,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [2,7],
     sizeTags: ["2b","7b"],
     capabilities: [],
-    pulls: "3.3M",
+    pulls: "3.4M",
     cloud: false,
   },
   {
@@ -52,7 +52,16 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [7,13,34,70],
     sizeTags: ["7b","13b","34b","70b"],
     capabilities: [],
-    pulls: "8.4M",
+    pulls: "8.5M",
+    cloud: false,
+  },
+  {
+    name: "codestral",
+    description: "Codestral is Mistral AI’s first-ever code model designed for code generation tasks.",
+    sizesB: [22],
+    sizeTags: ["22b"],
+    capabilities: [],
+    pulls: "1.4M",
     cloud: false,
   },
   {
@@ -65,21 +74,12 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     cloud: false,
   },
   {
-    name: "cogito-2.1",
-    description: "The Cogito v2.1 LLMs are instruction tuned generative models. All models are released under MIT license for commercial use.",
-    sizesB: [671],
-    sizeTags: ["671b"],
-    capabilities: [],
-    pulls: "243.8K",
-    cloud: false,
-  },
-  {
     name: "command-a",
     description: "111 billion parameter model optimized for demanding enterprises that require fast, secure, and high-quality AI",
     sizesB: [111],
     sizeTags: ["111b"],
     capabilities: ["tools"],
-    pulls: "251.4K",
+    pulls: "254.9K",
     cloud: false,
   },
   {
@@ -88,16 +88,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [7],
     sizeTags: ["7b"],
     capabilities: ["tools"],
-    pulls: "358.4K",
-    cloud: false,
-  },
-  {
-    name: "d3",
-    description: "Turn text, structured data, and images into scored choices, yes/no answers, and ratings.",
-    sizesB: [2,4,9,27],
-    sizeTags: ["2b","4b","9b","27b"],
-    capabilities: ["vision","decision"],
-    pulls: "102.9K",
+    pulls: "362.3K",
     cloud: false,
   },
   {
@@ -106,7 +97,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [1.5,14],
     sizeTags: ["1.5b","14b"],
     capabilities: [],
-    pulls: "993.1K",
+    pulls: "999.8K",
     cloud: false,
   },
   {
@@ -133,7 +124,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [1.5,7,8,14,32,70,671],
     sizeTags: ["1.5b","7b","8b","14b","32b","70b","671b"],
     capabilities: ["tools","thinking"],
-    pulls: "95.1M",
+    pulls: "95.4M",
     cloud: false,
   },
   {
@@ -142,7 +133,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [236],
     sizeTags: ["236b"],
     capabilities: [],
-    pulls: "314.3K",
+    pulls: "318K",
     cloud: false,
   },
   {
@@ -169,7 +160,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [24],
     sizeTags: ["24b"],
     capabilities: ["vision","tools"],
-    pulls: "2.8M",
+    pulls: "2.9M",
     cloud: false,
   },
   {
@@ -191,21 +182,12 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     cloud: false,
   },
   {
-    name: "flint",
-    description: "Flint is a 39.8 billion-parameter mixture-of-experts model from Recursive, built for coding agents.",
-    sizesB: [40],
-    sizeTags: ["40b"],
-    capabilities: ["tools","thinking"],
-    pulls: "99.6K",
-    cloud: false,
-  },
-  {
     name: "gemma4",
     description: "Gemma 4 models are designed to deliver frontier-level performance at each size. They are well-suited for reasoning, agentic workflows, coding, and multimodal understanding.",
     sizesB: [2,4,12,26,31],
     sizeTags: ["e2b","e4b","12b","26b","31b"],
     capabilities: ["vision","tools","thinking","audio"],
-    pulls: "29.3M",
+    pulls: "29.7M",
     cloud: true,
   },
   {
@@ -232,7 +214,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [20,120],
     sizeTags: ["20b","120b"],
     capabilities: ["tools","thinking"],
-    pulls: "15.8M",
+    pulls: "15.9M",
     cloud: true,
   },
   {
@@ -242,6 +224,24 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizeTags: ["2b","8b"],
     capabilities: ["tools"],
     pulls: "1.2M",
+    cloud: false,
+  },
+  {
+    name: "hy4",
+    description: "Tencent's flagship 770B open-weight model for coding, office work and research, with a 1M-token context and image and video understanding.",
+    sizesB: [],
+    sizeTags: [],
+    capabilities: ["vision","tools","thinking"],
+    pulls: "",
+    cloud: true,
+  },
+  {
+    name: "inkling-2-mini",
+    description: "Thinking Machines' small open-weights model that can run on a Mac: 26B parameters, 5.4B active, with looped layers for more computation per token.",
+    sizesB: [],
+    sizeTags: [],
+    capabilities: ["vision","tools","thinking"],
+    pulls: "44.3K",
     cloud: false,
   },
   {
@@ -277,7 +277,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [1.7],
     sizeTags: ["1.7b"],
     capabilities: ["tools","thinking"],
-    pulls: "96.7K",
+    pulls: "117.2K",
     cloud: false,
   },
   {
@@ -286,7 +286,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [2],
     sizeTags: ["2b"],
     capabilities: ["vision","tools","audio"],
-    pulls: "46.6K",
+    pulls: "57.5K",
     cloud: false,
   },
   {
@@ -295,7 +295,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [2],
     sizeTags: ["2b"],
     capabilities: ["vision","tools","audio"],
-    pulls: "71K",
+    pulls: "85.3K",
     cloud: false,
   },
   {
@@ -304,7 +304,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [2],
     sizeTags: ["2b"],
     capabilities: ["vision","tools","thinking"],
-    pulls: "54.2K",
+    pulls: "67.6K",
     cloud: false,
   },
   {
@@ -313,7 +313,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [1,3],
     sizeTags: ["1b","3b"],
     capabilities: ["tools"],
-    pulls: "87.8M",
+    pulls: "88.3M",
     cloud: false,
   },
   {
@@ -322,7 +322,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [11,90],
     sizeTags: ["11b","90b"],
     capabilities: ["vision"],
-    pulls: "5.6M",
+    pulls: "5.7M",
     cloud: false,
   },
   {
@@ -349,7 +349,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [7,70],
     sizeTags: ["7b","70b"],
     capabilities: [],
-    pulls: "938K",
+    pulls: "943.6K",
     cloud: false,
   },
   {
@@ -358,17 +358,8 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [9],
     sizeTags: ["9b"],
     capabilities: ["vision","tools","thinking"],
-    pulls: "107.9K",
+    pulls: "142.1K",
     cloud: false,
-  },
-  {
-    name: "minimax-m3.1-flash",
-    description: "As a next-generation Flash model, M3.1 Flash delivers a generational leap in agentic tasks, coding, Computer Use and cybersecurity, while making online inference nearly three times faster and reducing usage costs by 70%.",
-    sizesB: [],
-    sizeTags: [],
-    capabilities: ["vision","tools","thinking"],
-    pulls: "",
-    cloud: true,
   },
   {
     name: "mistral-large",
@@ -385,7 +376,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [128],
     sizeTags: ["128b"],
     capabilities: ["vision","tools","thinking"],
-    pulls: "443.9K",
+    pulls: "447.1K",
     cloud: false,
   },
   {
@@ -403,7 +394,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [24],
     sizeTags: ["24b"],
     capabilities: ["vision","tools"],
-    pulls: "936.2K",
+    pulls: "988.7K",
     cloud: false,
   },
   {
@@ -439,7 +430,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [4],
     sizeTags: ["e4b"],
     capabilities: ["vision","tools","thinking","audio"],
-    pulls: "71.9K",
+    pulls: "82.4K",
     cloud: false,
   },
   {
@@ -448,7 +439,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [30],
     sizeTags: ["30b"],
     capabilities: ["tools","thinking"],
-    pulls: "905.4K",
+    pulls: "923.5K",
     cloud: false,
   },
   {
@@ -457,7 +448,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [120],
     sizeTags: ["120b"],
     capabilities: ["vision","tools","thinking"],
-    pulls: "38.8K",
+    pulls: "45.1K",
     cloud: false,
   },
   {
@@ -466,7 +457,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [30],
     sizeTags: ["30b"],
     capabilities: ["tools","thinking"],
-    pulls: "172.8K",
+    pulls: "179.4K",
     cloud: false,
   },
   {
@@ -475,7 +466,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [4],
     sizeTags: ["4b"],
     capabilities: ["tools"],
-    pulls: "748.3K",
+    pulls: "752.5K",
     cloud: false,
   },
   {
@@ -484,7 +475,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [1.5,8],
     sizeTags: ["1.5b","8b"],
     capabilities: [],
-    pulls: "697.2K",
+    pulls: "704.2K",
     cloud: false,
   },
   {
@@ -494,6 +485,15 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizeTags: ["7b","32b"],
     capabilities: [],
     pulls: "1.2M",
+    cloud: false,
+  },
+  {
+    name: "ornith-1.5",
+    description: "Chirp Chirp! 🐦 We are introducing Ornith-1.5, a major step toward building foundation models through end-to-end self-improvement.",
+    sizesB: [9,35,122,397],
+    sizeTags: ["9b","35b","122b","397b"],
+    capabilities: ["vision","tools","thinking"],
+    pulls: "501.4K",
     cloud: false,
   },
   {
@@ -520,7 +520,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [],
     sizeTags: [],
     capabilities: [],
-    pulls: "155.7K",
+    pulls: "167.5K",
     cloud: false,
   },
   {
@@ -529,7 +529,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [4],
     sizeTags: ["4b"],
     capabilities: ["vision","decision"],
-    pulls: "41.2K",
+    pulls: "54.7K",
     cloud: false,
   },
   {
@@ -547,7 +547,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [0.5,1.5,3,7,14,32],
     sizeTags: ["0.5b","1.5b","3b","7b","14b","32b"],
     capabilities: ["tools"],
-    pulls: "23.8M",
+    pulls: "24.1M",
     cloud: false,
   },
   {
@@ -556,7 +556,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [30,480],
     sizeTags: ["30b","480b"],
     capabilities: ["tools"],
-    pulls: "11M",
+    pulls: "11.3M",
     cloud: false,
   },
   {
@@ -574,7 +574,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [27],
     sizeTags: ["27b"],
     capabilities: ["vision","tools","thinking"],
-    pulls: "6.7M",
+    pulls: "7.3M",
     cloud: false,
   },
   {
@@ -592,16 +592,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [65],
     sizeTags: ["65b"],
     capabilities: ["tools","thinking"],
-    pulls: "57.1K",
-    cloud: false,
-  },
-  {
-    name: "sailor2",
-    description: "Sailor2 are multilingual language models made for South-East Asia. Available in 1B, 8B, and 20B parameter sizes.",
-    sizesB: [1,8,20],
-    sizeTags: ["1b","8b","20b"],
-    capabilities: [],
-    pulls: "445.7K",
+    pulls: "114.9K",
     cloud: false,
   },
   {
@@ -610,7 +601,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [3],
     sizeTags: ["3b"],
     capabilities: [],
-    pulls: "279.1K",
+    pulls: "282.8K",
     cloud: false,
   },
   {
@@ -655,7 +646,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [3],
     sizeTags: ["3b"],
     capabilities: [],
-    pulls: "566K",
+    pulls: "570.8K",
     cloud: false,
   },
   {
@@ -664,7 +655,7 @@ export const MODEL_CATALOG: ScrapedModel[] = [
     sizesB: [1,3,7,15],
     sizeTags: ["1b","3b","7b","15b"],
     capabilities: [],
-    pulls: "2.1M",
+    pulls: "2.2M",
     cloud: false,
   },
   {
