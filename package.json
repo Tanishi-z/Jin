@@ -25,7 +25,7 @@
   ],
   "type": "module",
   "bin": {
-    "jin": "./dist/index.js"
+    "jin": "dist/index.js"
   },
   "files": [
     "dist",
