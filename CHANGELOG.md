@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.2](https://github.com/Tanishi-z/Jin/compare/jin-v0.3.1...jin-v0.3.2) (2026-11-25)
+
+
+### 不具合修正
+
+* package.json の bin パスを npm 推奨の形式に修正 ([a96d543](https://github.com/Tanishi-z/Jin/commit/a96d54318e1d22bb5010ea05f5c650dcf3821578))
+
 ## [0.3.1](https://github.com/Tanishi-z/Jin/compare/jin-v0.3.0...jin-v0.3.1) (2026-11-17)
 
 
